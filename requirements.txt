@@ -1,0 +1,6 @@
+requests
+slack_bolt
+supabase
+Flask
+python-dotenv
+asana
