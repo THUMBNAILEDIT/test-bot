@@ -1,10 +1,9 @@
 import os
-import json
 import requests
 from flask import request, jsonify
 from slack_bolt.adapter.flask import SlackRequestHandler
 
-from config import SLACK_BOT_TOKEN, SLACK_API_URL, ASANA_ADMIN_ID
+from config import ASANA_ADMIN_ID
 from database import (
     fetch_client_data,
     fetch_client_data_by_task_id,
@@ -74,7 +73,6 @@ def asana_webhook():
                         ],
                     )
                     thread_ts = response["ts"]
-                    # print(f"Created new thread: {thread_ts}")
 
                     update_client_thread_mapping(client_info["slack_id"], thread_ts, task_id)
 
@@ -104,47 +102,34 @@ def asana_webhook():
 
     return jsonify({"status": "failure"}), 400
 
-def slack_actions():
-    payload = request.form["payload"]
-    data = json.loads(payload)
+@app.action("accept_work")
+def handle_accept_work(ack, body, client):
+    ack()
 
-    action = data.get("actions")[0]
-    channel_id = data["channel"]["id"]
-    response_url = data["response_url"]
-    message_ts = data["message"]["ts"]
+    channel_id = body["channel"]["id"]
+    message_ts = body["message"]["ts"]
+    response_url = body["response_url"]
 
-    if action["action_id"] == "accept_work":
-        client_info = fetch_client_data(channel_id)
-        if client_info:
-            task_id = client_info.get("current_tasks", "").split(",")[0]
-            if task_id:
-                # print(f"Archiving Task ID: {task_id}")
-                move_task_to_archive(task_id)
+    client_info = fetch_client_data(channel_id)
+    if client_info:
+        task_id = client_info.get("current_tasks", "").split(",")[0]
+        if task_id:
+            move_task_to_archive(task_id)
+            remove_thread_mappings_for_task(channel_id, task_id)
+            remove_task_from_current_tasks(channel_id, task_id)
+            update_task_history(channel_id, task_id)
 
-                remove_thread_mappings_for_task(channel_id, task_id)
-                remove_task_from_current_tasks(channel_id, task_id)
-                update_task_history(channel_id, task_id)
-
-                try:
-                    original_message = app.client.conversations_replies(
-                        channel=channel_id,
-                        ts=message_ts
-                    )
-                    if original_message["ok"] and original_message["messages"]:
-                        full_message = original_message["messages"][0].get("text", "")
-                        greeting = GREETING_MESSAGE.format(name=client_info.get("client_name_short", "there"))
-                        designer_message = full_message.replace(f"*{greeting}*", "").strip()
-                    else:
-                        designer_message = ""
-
-                    app.client.chat_postMessage(
-                        channel=channel_id,
-                        text="This request has been approved. Thank you!",
-                        thread_ts=message_ts
-                    )
-
-                except Exception as e:
-                    print(f"Error while handling approval: {e}")
+            try:
+                original_message = client.conversations_replies(
+                    channel=channel_id,
+                    ts=message_ts
+                )
+                if original_message["ok"] and original_message["messages"]:
+                    full_message = original_message["messages"][0].get("text", "")
+                    greeting = GREETING_MESSAGE.format(name=client_info.get("client_name_short", "there"))
+                    designer_message = full_message.replace(f"*{greeting}*", "").strip()
+                else:
+                    designer_message = ""
 
                 requests.post(
                     response_url,
@@ -153,84 +138,86 @@ def slack_actions():
                         "text": f"{designer_message}"
                     }
                 )
-            else:
-                print("No task ID found to archive")
+
+                client.chat_postMessage(
+                    channel=channel_id,
+                    text="This request has been approved. Thank you!",
+                    thread_ts=message_ts
+                )
+
+            except Exception as e:
+                print(f"Error while handling approval: {e}")
         else:
-            print("Could not find client info")
-        return jsonify({"status": "success"})
+            print("No task ID found to archive")
+    else:
+        print("Could not find client info")
 
-    elif action["action_id"] == "request_revisions":
-        client_info = fetch_client_data(channel_id)
-        if client_info:
-            thread_ts = message_ts
-            task_id = client_info.get("thread_mappings", {}).get(thread_ts)
+@app.action("request_revisions")
+def handle_request_revisions(ack, body, client):
+    ack()
 
-            if not task_id:
-                current_tasks = client_info.get("current_tasks", "").split(",")
-                task_id = current_tasks[0] if current_tasks else None
+    channel_id = body["channel"]["id"]
+    message_ts = body["message"]["ts"]
+    response_url = body["response_url"]
 
-            if task_id:
-                # print(f"Requesting revisions for Task ID: {task_id}, Thread TS: {thread_ts}")
+    client_info = fetch_client_data(channel_id)
+    if client_info:
+        thread_ts = message_ts
+        task_id = client_info.get("thread_mappings", {}).get(thread_ts)
 
-                try:
-                    original_message = app.client.conversations_replies(
-                        channel=channel_id,
-                        ts=thread_ts
-                    )
-                    if original_message["ok"] and original_message["messages"]:
-                        full_message = original_message["messages"][0].get("text", "")
-                        greeting = GREETING_MESSAGE.format(name=client_info.get("client_name_short", "there"))
-                        designer_message = full_message.replace(f"*{greeting}*", "").strip()
-                    else:
-                        designer_message = ""
+        if not task_id:
+            current_tasks = client_info.get("current_tasks", "").split(",")
+            task_id = current_tasks[0] if current_tasks else None
 
-                    updated_text = (
-                        f"{designer_message}"
-                    )
-                    app.client.chat_update(
-                        channel=channel_id,
-                        ts=message_ts,
-                        text=updated_text
-                    )
-                    thread_message = requests.post(
-                        f"{SLACK_API_URL}/chat.postMessage",
-                        headers={"Authorization": f"Bearer {SLACK_BOT_TOKEN}"},
+        if task_id:
+            try:
+                original_message = client.conversations_replies(
+                    channel=channel_id,
+                    ts=thread_ts
+                )
+                if original_message["ok"] and original_message["messages"]:
+                    full_message = original_message["messages"][0].get("text", "")
+                    greeting = GREETING_MESSAGE.format(name=client_info.get("client_name_short", "there"))
+                    designer_message = full_message.replace(f"*{greeting}*", "").strip()
+                else:
+                    designer_message = ""
+
+                updated_text = (
+                    f"{designer_message}"
+                )
+                client.chat_update(
+                    channel=channel_id,
+                    ts=message_ts,
+                    text=updated_text
+                )
+                thread_message = client.chat_postMessage(
+                    channel=channel_id,
+                    text="Please provide your revisions below.",
+                    thread_ts=thread_ts,
+                )
+
+                if thread_message["ok"]:
+                    update_client_thread_mapping(channel_id, thread_ts, task_id)
+                    requests.post(
+                        response_url,
                         json={
-                            "channel": channel_id,
-                            "text": "Please provide your revisions below.",
-                            "thread_ts": thread_ts,
-                        },
+                            "replace_original": True,
+                            "text": updated_text
+                        }
                     )
-                    # print(f"Slack API Response: {thread_message.status_code} - {thread_message.text}")
+                else:
+                    print("Failed to post message in thread:", thread_message)
 
-                    if thread_message.status_code == 200:
-                        update_client_thread_mapping(channel_id, thread_ts, task_id)
-                        # print(f"Updated thread mappings with Thread TS: {thread_ts}, Task ID: {task_id}")
-
-                        requests.post(
-                            response_url,
-                            json={
-                                "replace_original": True,
-                                "text": updated_text
-                            }
-                        )
-                        return jsonify({"status": "success"})
-                    else:
-                        print("Failed to post message in thread:", thread_message.text)
-                        return jsonify({"status": "failure", "error": "Failed to post message in thread"}), 500
-                except Exception as e:
-                    print(f"Error while posting message to Slack thread: {e}")
-                    return jsonify({"status": "failure", "error": str(e)}), 500
-            else:
-                print("No task ID found for this thread.")
+            except Exception as e:
+                print(f"Error while posting message to Slack thread: {e}")
         else:
-            print("Client information not found.")
-
-        return jsonify({"status": "failure", "message": "Action not handled properly"}), 400
+            print("No task ID found for this thread.")
+    else:
+        print("Client information not found.")
 
 @app.event("message")
 def handle_thread_messages(event, say, client):
-    if "thread_ts" in event and not event.get("bot_id"):  # Exclude bot messages
+    if "thread_ts" in event and not event.get("bot_id"):
         thread_ts = event["thread_ts"]
         channel_id = event["channel"]
         user_message = event.get("text", "")
