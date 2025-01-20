@@ -113,11 +113,9 @@ def handle_modal_submission(ack, body, client):
 
     video_link = state_values["video_link"]["input"]["value"]
     
-    # Safely retrieve and validate additional_info
     additional_info = state_values.get("additional_info", {}).get("input", {}).get("value")
     if additional_info:
         additional_info = additional_info.strip()
-        # Replace filler-like values with a default message
         if not additional_info or additional_info in [".", ",", "-", "_"]:
             additional_info = "No additional information"
     else:
@@ -129,7 +127,6 @@ def handle_modal_submission(ack, body, client):
         for option in state_values["resizes_needed"]["select"]["selected_options"]
     ]
 
-    # Determine credits required for the selected package
     package_credits_map = {"1": 1, "2": 2, "3": 3}
     required_credits = package_credits_map.get(thumbnail_packages, 1)
 
@@ -149,7 +146,6 @@ def handle_modal_submission(ack, body, client):
         )
         return
 
-    # Proceed with task creation and deduct credits
     task_notes = f"""ORDER INFORMATION
 Order type: YouTube Thumbnail
 Main deliverables:
@@ -177,7 +173,7 @@ Additional Info: {additional_info}
     if task_id:
         update_client_current_tasks(channel_id, task_id)
         register_webhook_for_task(task_id)
-        update_client_credits(channel_id, current_credits - required_credits)  # Deduct based on selected packages
+        update_client_credits(channel_id, current_credits - required_credits)
         client.chat_postMessage(
             channel=channel_id,
             text=(
@@ -193,79 +189,3 @@ Additional Info: {additional_info}
             channel=channel_id,
             text="*Error:* Unable to create a task in Asana. Please try again later."
         )
-
-# @app.view("request_modal_submission")
-# def handle_modal_submission(ack, body, client):
-#     ack()
-
-#     state_values = body["view"]["state"]["values"]
-#     user_id = body["user"]["id"]
-#     channel_id = body["view"]["private_metadata"]
-
-#     video_link = state_values["video_link"]["input"]["value"]
-    
-#     additional_info = state_values.get("additional_info", {}).get("input", {}).get("value", "")
-#     additional_info = additional_info.strip() if additional_info else "No additional information"
-
-#     thumbnail_packages = state_values["thumbnail_packages"]["select"]["selected_option"]["value"]
-#     resizes_needed = [
-#         option["value"]
-#         for option in state_values["resizes_needed"]["select"]["selected_options"]
-#     ]
-
-#     client_info = fetch_client_data(channel_id)
-#     if not client_info:
-#         client.chat_postMessage(channel=channel_id, text="*Error:* Unable to fetch your client data.")
-#         return
-
-#     current_credits = client_info.get("current_credits", 0)
-#     if current_credits < 1:
-#         client.chat_postMessage(
-#             channel=channel_id,
-#             text="*Sorry, seems you don't have enough credits. Please refill the tank and try again.*"
-#         )
-#         return
-
-#     task_notes = f"""ORDER INFORMATION
-# Order type: YouTube Thumbnail
-# Main deliverables:
-#     • 1920 x 1080 image (.JPG)
-#     • Project file (.PSD)
-# Thumbnail packages amount: {thumbnail_packages}
-# Additional resizes: {", ".join(resizes_needed)}
-
-# CLIENT INFORMATION
-# Client: {client_info.get('client_name_full', 'Unknown')} 
-# Client's channel: {client_info.get('client_channel_name', 'Unknown')} ({client_info.get('client_channel_link', 'Unknown')})
-
-# STYLE
-# Client's preferences: {client_info.get('client_preferences', 'Unknown')}
-# Thumbnail examples: {client_info.get('client_thumbnail_examples', 'Unknown')}
-
-# TASK DESCRIPTION
-# Video Link: {video_link}
-# Additional Info: {additional_info}
-# """
-
-#     task_name = f"Request from {client_info.get('client_name_short', 'Unknown')}"
-#     task_id = create_asana_task(task_name, task_notes)
-
-#     if task_id:
-#         update_client_current_tasks(channel_id, task_id)
-#         register_webhook_for_task(task_id)
-#         update_client_credits(channel_id, current_credits - 1)
-#         client.chat_postMessage(
-#             channel=channel_id,
-#             text=(
-#                 f"*Your request with the following details has been received. Thank you!* \n\n" 
-#                 f"*Link to the video:* {video_link} \n\n"
-#                 f"*Additional information:* {additional_info} \n\n"
-#                 f"*Amount of packages:* {thumbnail_packages} \n\n"
-#                 f"*Requested resizes:* {', '.join(resizes_needed)} \n\n"
-#             )
-#         )
-#     else:
-#         client.chat_postMessage(
-#             channel=channel_id,
-#             text="*Error:* Unable to create a task in Asana. Please try again later."
-#         )
