@@ -17,7 +17,7 @@ from commands import app
 
 handler = SlackRequestHandler(app)
 
-GREETING_MESSAGE = "Hi {name}, the deliverables for your video are ready. Please review them and choose whether you are satisfied, or if you'd like to request changes."
+GREETING_MESSAGE = "Hi {name}, the deliverables for your video are ready, please take a look!"
 
 def asana_webhook():
     if "X-Hook-Secret" in request.headers:
