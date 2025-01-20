@@ -61,21 +61,6 @@ def handle_request(ack, body, client):
                         {"text": {"type": "plain_text", "text": "3 packages"}, "value": "3"}
                     ]
                 }
-            },
-            {
-                "type": "input",
-                "block_id": "resizes_needed",
-                "label": {"type": "plain_text", "text": "Resizes needed"},
-                "element": {
-                    "type": "multi_static_select",
-                    "action_id": "select",
-                    "placeholder": {"type": "plain_text", "text": "Select options"},
-                    "options": [
-                        {"text": {"type": "plain_text", "text": "No resizes needed"}, "value": "No resizes needed"},
-                        {"text": {"type": "plain_text", "text": "Social media post (1080x1080)"}, "value": "Social media post (1080x1080)"},
-                        {"text": {"type": "plain_text", "text": "Vertical video cover (1080x1920)"}, "value": "Vertical video cover (1080x1920)"},
-                    ]
-                }
             }
         ],
         "submit": {"type": "plain_text", "text": "Submit"}
@@ -122,10 +107,6 @@ def handle_modal_submission(ack, body, client):
         additional_info = "No additional information"
 
     thumbnail_packages = state_values["thumbnail_packages"]["select"]["selected_option"]["value"]
-    resizes_needed = [
-        option["value"]
-        for option in state_values["resizes_needed"]["select"]["selected_options"]
-    ]
 
     package_credits_map = {"1": 1, "2": 2, "3": 3}
     required_credits = package_credits_map.get(thumbnail_packages, 1)
@@ -152,14 +133,16 @@ Main deliverables:
     • 1920 x 1080 image (.JPG)
     • Project file (.PSD)
 Thumbnail packages amount: {thumbnail_packages}
-Additional resizes: {", ".join(resizes_needed)}
+Additional resizes: {client_info.get('resize', 'None')}
 
 CLIENT INFORMATION
 Client: {client_info.get('client_name_full', 'Unknown')} 
 Client's channel: {client_info.get('client_channel_name', 'Unknown')} ({client_info.get('client_channel_link', 'Unknown')})
+Client's pictures: {client_info.get('face_photos', 'None')}
 
 STYLE
-Client's preferences: {client_info.get('client_preferences', 'Unknown')}
+Client's branding: {client_info.get('branding', 'None')}
+Client's preferences: {client_info.get('client_wishes', 'Unknown')}
 Thumbnail examples: {client_info.get('client_thumbnail_examples', 'Unknown')}
 
 TASK DESCRIPTION
@@ -181,7 +164,7 @@ Additional Info: {additional_info}
                 f"*Link to the video:* {video_link} \n\n"
                 f"*Additional information:* {additional_info} \n\n"
                 f"*Amount of packages:* {thumbnail_packages} \n\n"
-                f"*Requested resizes:* {', '.join(resizes_needed)} \n\n"
+                f"*Resizes:* {client_info.get('resize', 'None')} \n\n"
             )
         )
     else:
