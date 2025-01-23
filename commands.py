@@ -5,6 +5,7 @@ from database import (
     fetch_client_data,
     update_client_credits,
     update_client_current_tasks,
+    get_access_token
 )
 from asana_utils import create_asana_task, register_webhook_for_task
 from config import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
@@ -73,15 +74,24 @@ def handle_balance(ack, command):
     ack()
     channel_id = command["channel_id"]
     client_info = fetch_client_data(channel_id)
-    
+
     if client_info:
-        app.client.chat_postMessage(
-            channel=channel_id,
-            text=(
-                f"Hi {client_info.get('client_name_short', ' ')}! "
-                f"You currently have *{client_info.get('current_credits', 'N/A')}* credits left. "
+        try:
+            access_token = get_access_token(channel_id)
+            payment_url = f"https://4548-95-67-59-42.ngrok-free.app/pricing/{access_token}"
+            app.client.chat_postMessage(
+                channel=channel_id,
+                text=(
+                    f"Hi {client_info.get('client_name_short', ' ')}! "
+                    f"You currently have *{client_info.get('current_credits', 'N/A')}* credits left.\n\n"
+                    f"If you need more credits, refill your account <{payment_url}|here>."
+                )
             )
-        )
+        except ValueError as e:
+            app.client.chat_postMessage(
+                channel=channel_id,
+                text=f"*Error:* {str(e)}. Please contact support for assistance.\n\n"
+            )
     else:
         app.client.chat_postMessage(
             channel=channel_id,

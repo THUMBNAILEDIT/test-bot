@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>THUMBNAILED.IT</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/modern-normalize@2.0.0/modern-normalize.min.css"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="..//static/styles.css" />
+  </head>
+  <body data-access-token="{{ access_token }}">
+    <header class="header">
+      <div class="container">
+        <a href="https://thumbnailed-it.com" class="header-logo__link link">
+          <div class="header-logo">
+            <p class="header-logo__left">THUMB</p>
+            <p class="header-logo__right emp">NAILED.IT</p>
+          </div>
+        </a>
+      </div>
+    </header>
+    <main>
+      <section class="pricing">
+        <p class="pricing-title">Refill your tank here!</p>
+        <div class="pricing-container">
+          <div class="tabs">
+            <button class="tab-button active" data-tab="monthly">
+              Monthly subscription
+            </button>
+            <button class="tab-button" data-tab="annual">
+              Annual subscription
+            </button>
+            <button class="tab-button" data-tab="pay-as-you-go">
+              Pay as you go
+            </button>
+          </div>
+          <div class="tab-content active" id="monthly">
+            <div class="monthly-total-display">
+              Total: <span id="monthly-total-amount">$240</span>
+            </div>
+            <div class="monthly-content-row" id="monthly-videos-row">
+              <label for="monthly-videos-counter">Videos per week</label>
+              <div class="monthly-counter">
+                <button
+                  id="monthly-videos-decrement"
+                  class="monthly-counter-btn"
+                >
+                  -
+                </button>
+                <span id="monthly-videos-counter">1</span>
+                <button
+                  id="monthly-videos-increment"
+                  class="monthly-counter-btn"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div class="monthly-content-row" id="monthly-versions-row">
+              <label for="monthly-versions-counter">Versions per video</label>
+              <div class="monthly-counter">
+                <button
+                  id="monthly-versions-decrement"
+                  class="monthly-counter-btn"
+                >
+                  -
+                </button>
+                <span id="monthly-versions-counter">1</span>
+                <button
+                  id="monthly-versions-increment"
+                  class="monthly-counter-btn"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <button id="monthly-purchase-btn" class="purchase-btn">
+              Purchase
+            </button>
+          </div>
+          <div class="tab-content" id="annual">
+            <div class="annual-total-display">
+              Total: <span id="annual-total-amount">$2592</span>
+            </div>
+            <div class="annual-content-row" id="annual-videos-row">
+              <label for="annual-videos-counter">Videos per week</label>
+              <div class="annual-counter">
+                <button id="annual-videos-decrement" class="annual-counter-btn">
+                  -
+                </button>
+                <span id="annual-videos-counter">1</span>
+                <button id="annual-videos-increment" class="annual-counter-btn">
+                  +
+                </button>
+              </div>
+            </div>
+            <div class="annual-content-row" id="annual-versions-row">
+              <label for="annual-versions-counter">Versions per video</label>
+              <div class="annual-counter">
+                <button
+                  id="annual-versions-decrement"
+                  class="annual-counter-btn"
+                >
+                  -
+                </button>
+                <span id="annual-versions-counter">1</span>
+                <button
+                  id="annual-versions-increment"
+                  class="annual-counter-btn"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <button id="annual-purchase-btn" class="purchase-btn">
+              Purchase
+            </button>
+          </div>
+          <div class="tab-content" id="pay-as-you-go">
+            <div class="onetime-total-display">
+              Total: <span id="onetime-total-amount">$70</span>
+            </div>
+            <div class="onetime-content-row">
+              <label for="onetime-credits-counter">Credits</label>
+              <div class="onetime-counter">
+                <button
+                  id="onetime-credits-decrement"
+                  class="onetime-counter-btn"
+                >
+                  -
+                </button>
+                <span id="onetime-credits-counter">1</span>
+                <button
+                  id="onetime-credits-increment"
+                  class="onetime-counter-btn"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <button id="onetime-purchase-btn" class="purchase-btn">
+              Purchase
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="..//static/script.js"></script>
+  </body>
+</html>
