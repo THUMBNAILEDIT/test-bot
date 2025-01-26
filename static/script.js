@@ -3,7 +3,7 @@ const accessToken = document.body.dataset.accessToken;
 function sendPurchaseRequest(plan, total) {
   alert(`Plan: ${plan}, Total: ${total}, AccessToken: ${accessToken}`);
 
-  fetch("/api/purchase", {
+  fetch("/api/create-invoice", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -23,7 +23,7 @@ function sendPurchaseRequest(plan, total) {
     })
     .then((data) => {
       alert(`Purchase is successful!`);
-      // window.location.href = data.payment_url;
+      window.location.href = data.payment_url;
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -150,6 +150,7 @@ const annualVersionsCounter = document.getElementById(
   "annual-versions-counter"
 );
 const annualTotalAmount = document.getElementById("annual-total-amount");
+const annualMonthlyAmount = document.getElementById("annual-monthly-amount");
 
 const annualPricingTable = {
   1: { 1: 2592, 2: 4925, 3: 6998 },
@@ -165,20 +166,25 @@ function initializeAnnualTotal() {
   const videos = parseInt(annualVideosCounter.textContent, 10);
   const versions = parseInt(annualVersionsCounter.textContent, 10);
   const total = annualPricingTable[videos][versions];
+  const monthlyEquivalent = Math.round(total / 12);
   annualTotalAmount.textContent = `$${total}`;
+  annualMonthlyAmount.textContent = `(${monthlyEquivalent} per month)`;
 }
 
 function updateAnnualTotal() {
   const videos = parseInt(annualVideosCounter.textContent, 10);
   const versions = parseInt(annualVersionsCounter.textContent, 10);
   const total = annualPricingTable[videos][versions];
+  const monthlyEquivalent = Math.round(total / 12);
   annualTotalAmount.textContent = `$${total}`;
+  annualMonthlyAmount.textContent = `(${monthlyEquivalent} per month)`;
 }
 
 function resetAnnualValues() {
   annualVideosCounter.textContent = "1";
   annualVersionsCounter.textContent = "1";
   annualTotalAmount.textContent = `$${annualPricingTable[1][1]}`;
+  annualMonthlyAmount.textContent = `(216 per month)`;
 }
 
 document

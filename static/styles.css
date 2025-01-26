@@ -323,6 +323,11 @@ label {
   font-weight: 700;
 }
 
+.monthly-equivalent {
+  font-size: 20px;
+  color: var(--green);
+}
+
 .annual-content-row {
   display: flex;
   align-items: center;
