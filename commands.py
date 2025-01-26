@@ -78,7 +78,7 @@ def handle_balance(ack, command):
     if client_info:
         try:
             access_token = get_access_token(channel_id)
-            payment_url = f"https://4548-95-67-59-42.ngrok-free.app/pricing/{access_token}"
+            payment_url = f"https://thumbnailed-it-slack-bot.onrender.com/pricing/{access_token}"
             app.client.chat_postMessage(
                 channel=channel_id,
                 text=(
