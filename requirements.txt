@@ -4,3 +4,5 @@ supabase
 Flask
 python-dotenv
 asana
+ecdsa~=0.19.0
+pytz~=2025.1

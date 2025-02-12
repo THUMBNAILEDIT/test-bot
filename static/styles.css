@@ -434,3 +434,20 @@ label {
 .purchase-btn:active {
   transform: scale(0.95);
 }
+
+.monthly-label-wrapper,
+.annual-label-wrapper {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+}
+
+.monthly-label-wrapper label,
+.monthly-label-wrapper p,
+.annual-label-wrapper label,
+.annual-label-wrapper p {
+  margin: 0;
+  padding: 0;
+}

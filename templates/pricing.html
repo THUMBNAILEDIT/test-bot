@@ -44,10 +44,23 @@
           </div>
           <div class="tab-content active" id="monthly">
             <div class="monthly-total-display">
-              Total: <span id="monthly-total-amount">$240</span>
+              <!-- The total price will be updated by JS -->
+              <span id="monthly-total-amount">$240</span
+              ><span style="font-size: 50%">/month</span>
             </div>
+            <!-- Videos per month row -->
             <div class="monthly-content-row" id="monthly-videos-row">
-              <label for="monthly-videos-counter">Videos per week</label>
+              <div class="monthly-label-wrapper">
+                <label for="monthly-videos-counter">Videos per month</label>
+                <!-- This paragraph shows "Videos per week" and will be updated by JS -->
+                <p
+                  id="monthly-videos-per-week"
+                  class="monthly-subtitle"
+                  style="font-size: 0.85em; font-weight: bold; color: #9d9d9d"
+                >
+                  Videos per week - X
+                </p>
+              </div>
               <div class="monthly-counter">
                 <button
                   id="monthly-videos-decrement"
@@ -55,7 +68,8 @@
                 >
                   -
                 </button>
-                <span id="monthly-videos-counter">1</span>
+                <!-- Updated default value to 4 -->
+                <span id="monthly-videos-counter">4</span>
                 <button
                   id="monthly-videos-increment"
                   class="monthly-counter-btn"
@@ -64,8 +78,19 @@
                 </button>
               </div>
             </div>
+            <!-- Packages per video row -->
             <div class="monthly-content-row" id="monthly-versions-row">
-              <label for="monthly-versions-counter">Versions per video</label>
+              <div class="monthly-label-wrapper">
+                <label for="monthly-versions-counter">Packages per video</label>
+                <!-- This paragraph shows Total packages and price per package, updated by JS -->
+                <p
+                  id="monthly-total-packages"
+                  class="monthly-subtitle"
+                  style="font-size: 0.85em; font-weight: bold; color: #9d9d9d"
+                >
+                  Total packages - Y ($00 per package)
+                </p>
+              </div>
               <div class="monthly-counter">
                 <button
                   id="monthly-versions-decrement"
@@ -73,7 +98,8 @@
                 >
                   -
                 </button>
-                <span id="monthly-versions-counter">1</span>
+                <!-- Updated default value to 2 -->
+                <span id="monthly-versions-counter">2</span>
                 <button
                   id="monthly-versions-increment"
                   class="monthly-counter-btn"
@@ -88,25 +114,51 @@
           </div>
           <div class="tab-content" id="annual">
             <div class="annual-total-display">
-              Total: <span id="annual-total-amount">$2592</span>
+              <!-- Main label: shows the discounted monthly cost -->
+              <span id="annual-total-amount">$0</span
+              ><span style="font-size: 50%">/month</span>
+              <br />
+              <!-- Smaller label: shows the annual total cost -->
+              <small
+                id="annual-total-year"
+                style="font-size: 0.65em; color: #bbbbbb"
+              ></small>
             </div>
-            <span id="annual-monthly-amount" class="monthly-equivalent"
-              >($216 / Month)</span
-            >
+            <!-- Videos per month row -->
             <div class="annual-content-row" id="annual-videos-row">
-              <label for="annual-videos-counter">Videos per week</label>
+              <div class="annual-label-wrapper">
+                <label for="annual-videos-counter">Videos per month</label>
+                <p
+                  id="annual-videos-per-week"
+                  class="annual-subtitle"
+                  style="font-size: 0.85em; font-weight: bold; color: #bbbbbb"
+                >
+                  Videos per week - X
+                </p>
+              </div>
               <div class="annual-counter">
                 <button id="annual-videos-decrement" class="annual-counter-btn">
                   -
                 </button>
-                <span id="annual-videos-counter">1</span>
+                <!-- Updated default value: 4 -->
+                <span id="annual-videos-counter">4</span>
                 <button id="annual-videos-increment" class="annual-counter-btn">
                   +
                 </button>
               </div>
             </div>
+            <!-- Packages per video row -->
             <div class="annual-content-row" id="annual-versions-row">
-              <label for="annual-versions-counter">Versions per video</label>
+              <div class="annual-label-wrapper">
+                <label for="annual-versions-counter">Packages per video</label>
+                <p
+                  id="annual-total-packages"
+                  class="annual-subtitle"
+                  style="font-size: 0.85em; font-weight: bold; color: #bbbbbb"
+                >
+                  Total packages - Y ($00 per package)
+                </p>
+              </div>
               <div class="annual-counter">
                 <button
                   id="annual-versions-decrement"
@@ -114,7 +166,8 @@
                 >
                   -
                 </button>
-                <span id="annual-versions-counter">1</span>
+                <!-- Updated default value: 2 -->
+                <span id="annual-versions-counter">2</span>
                 <button
                   id="annual-versions-increment"
                   class="annual-counter-btn"
@@ -129,10 +182,20 @@
           </div>
           <div class="tab-content" id="pay-as-you-go">
             <div class="onetime-total-display">
-              Total: <span id="onetime-total-amount">$70</span>
+              <span id="onetime-total-amount">$70</span>
             </div>
             <div class="onetime-content-row">
-              <label for="onetime-credits-counter">Credits</label>
+              <div class="onetime-label-wrapper">
+                <label for="onetime-credits-counter">Packages</label>
+                <!-- This paragraph will be updated by JS to show the cost per package -->
+                <p
+                  id="onetime-price-per-package"
+                  class="onetime-subtitle"
+                  style="font-size: 0.85em; font-weight: bold; color: #9d9d9d"
+                >
+                  $60 per package
+                </p>
+              </div>
               <div class="onetime-counter">
                 <button
                   id="onetime-credits-decrement"

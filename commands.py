@@ -8,7 +8,7 @@ from database import (
     get_access_token
 )
 from asana_utils import create_asana_task, register_webhook_for_task
-from config import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
+from config import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET, BACKEND_BASEURL
 
 app = App(token=SLACK_BOT_TOKEN, signing_secret=SLACK_SIGNING_SECRET)
 
@@ -59,7 +59,8 @@ def handle_request(ack, body, client):
                     "options": [
                         {"text": {"type": "plain_text", "text": "1 package"}, "value": "1"},
                         {"text": {"type": "plain_text", "text": "2 packages"}, "value": "2"},
-                        {"text": {"type": "plain_text", "text": "3 packages"}, "value": "3"}
+                        {"text": {"type": "plain_text", "text": "3 packages"}, "value": "3"},
+                        {"text": {"type": "plain_text", "text": "4 packages"}, "value": "4"}
                     ]
                 }
             }
@@ -78,7 +79,7 @@ def handle_balance(ack, command):
     if client_info:
         try:
             access_token = get_access_token(channel_id)
-            payment_url = f"https://thumbnailed-it-slack-bot.onrender.com/pricing/{access_token}"
+            payment_url = f"{BACKEND_BASEURL}pricing/{access_token}"
             app.client.chat_postMessage(
                 channel=channel_id,
                 text=(
@@ -118,7 +119,7 @@ def handle_modal_submission(ack, body, client):
 
     thumbnail_packages = state_values["thumbnail_packages"]["select"]["selected_option"]["value"]
 
-    package_credits_map = {"1": 1, "2": 2, "3": 3}
+    package_credits_map = {"1": 1, "2": 2, "3": 3, "4": 4}
     required_credits = package_credits_map.get(thumbnail_packages, 1)
 
     client_info = fetch_client_data(channel_id)
@@ -138,22 +139,17 @@ def handle_modal_submission(ack, body, client):
         return
 
     task_notes = f"""ORDER INFORMATION
-Order type: YouTube Thumbnail
-Main deliverables:
-    • 1920 x 1080 image (.JPG)
-    • Project file (.PSD)
-Thumbnail packages amount: {thumbnail_packages}
-Additional resizes: {client_info.get('resize', 'None')}
+Packages amount: {thumbnail_packages}
+Resizes: {client_info.get('resize', 'None')}.
 
-CLIENT INFORMATION
-Client: {client_info.get('client_name_full', 'Unknown')} 
-Client's channel: {client_info.get('client_channel_name', 'Unknown')} ({client_info.get('client_channel_link', 'Unknown')})
-Client's pictures: {client_info.get('face_photos', 'None')}
+AUTHOR INFORMATION
+Author's name: {client_info.get('client_name_full', 'Unknown')}
+Channel link: {client_info.get('client_channel_link', 'Unknown')}
+Author's photo: {client_info.get('face_photos', 'None')}
 
 STYLE
-Client's branding: {client_info.get('branding', 'None')}
-Client's preferences: {client_info.get('client_wishes', 'Unknown')}
-Thumbnail examples: {client_info.get('client_thumbnail_examples', 'Unknown')}
+Author's branding: {client_info.get('branding', 'None')}
+Author's preferences: {client_info.get('client_wishes', 'Unknown')}
 
 TASK DESCRIPTION
 Video Link: {video_link}
