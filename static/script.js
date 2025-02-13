@@ -1,6 +1,5 @@
 const accessToken = document.body.dataset.accessToken;
-const baseUrl =
-  "https://9097-2a02-2378-11f2-3fe5-5986-ccfa-6eda-a3b9.ngrok-free.app/";
+const baseUrl = "https://5667-185-19-6-117.ngrok-free.app/";
 
 function sendPurchaseRequest(plan, total) {
   //  alert(`Plan: ${plan}, Total: ${total}, AccessToken: ${accessToken}`);
