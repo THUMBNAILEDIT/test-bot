@@ -3,10 +3,6 @@ import requests
 from flask import request, jsonify
 from slack_bolt.adapter.flask import SlackRequestHandler
 
-# import logging
-
-# logging.basicConfig(level=logging.DEBUG)
-
 from config import ASANA_ADMIN_ID
 from database import (
     fetch_client_data,

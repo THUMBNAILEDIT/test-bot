@@ -1,5 +1,5 @@
 const accessToken = document.body.dataset.accessToken;
-const baseUrl = "https://5667-185-19-6-117.ngrok-free.app/";
+const baseUrl = "https://thumbnailed-it-slack-bot.onrender.com/";
 
 function sendPurchaseRequest(plan, total) {
   //  alert(`Plan: ${plan}, Total: ${total}, AccessToken: ${accessToken}`);

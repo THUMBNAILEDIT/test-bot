@@ -76,3 +76,32 @@ def move_task_to_archive(task_id):
             print(f"Failed to move task {task_id} to archive: {add_response.text}")
         elif response.status_code != 200:
             print(f"Failed to fetch current projects for task {task_id}: {response.text}")
+
+def create_asana_subtask(parent_task_id, subtask_name, subtask_notes):
+    """
+    Creates a subtask under the given parent task ID in Asana.
+    parent_task_id: The main task's ID (string).
+    subtask_name: The name/title of the subtask (string).
+    subtask_notes: The description or notes for the subtask (string).
+    Returns: The ID of the newly created subtask, or None if creation failed.
+    """
+    url = f"https://app.asana.com/api/1.0/tasks/{parent_task_id}/subtasks"
+    headers = {
+        "Authorization": f"Bearer {ASANA_ACCESS_TOKEN}"
+    }
+    data = {
+        "data": {
+            "name": subtask_name,
+            "notes": subtask_notes
+            # You can also add "projects": [ASANA_PROJECT_ID] if you want the subtask to appear in a project.
+        }
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    if response.status_code == 201:
+        subtask_id = response.json().get("data", {}).get("gid")
+        return subtask_id
+    else:
+        print(f"Failed to create subtask: {response.text}")
+        return None
