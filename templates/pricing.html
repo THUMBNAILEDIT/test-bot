@@ -16,7 +16,11 @@
     />
     <link rel="stylesheet" href="..//static/styles.css" />
   </head>
-  <body data-access-token="{{ access_token }}">
+  <!-- <body data-access-token="{{ access_token }}"> -->
+  <body
+    data-access-token="{{ access_token }}"
+    data-is-subscription-active="{{ is_subscription_active }}"
+  >
     <header class="header">
       <div class="container">
         <a href="https://thumbnailed-it.com" class="header-logo__link link">
@@ -44,15 +48,12 @@
           </div>
           <div class="tab-content active" id="monthly">
             <div class="monthly-total-display">
-              <!-- The total price will be updated by JS -->
               <span id="monthly-total-amount">$240</span
               ><span style="font-size: 50%">/month</span>
             </div>
-            <!-- Videos per month row -->
             <div class="monthly-content-row" id="monthly-videos-row">
               <div class="monthly-label-wrapper">
                 <label for="monthly-videos-counter">Videos per month</label>
-                <!-- This paragraph shows "Videos per week" and will be updated by JS -->
                 <p
                   id="monthly-videos-per-week"
                   class="monthly-subtitle"
@@ -68,7 +69,6 @@
                 >
                   -
                 </button>
-                <!-- Updated default value to 4 -->
                 <span id="monthly-videos-counter">4</span>
                 <button
                   id="monthly-videos-increment"
@@ -78,11 +78,9 @@
                 </button>
               </div>
             </div>
-            <!-- Packages per video row -->
             <div class="monthly-content-row" id="monthly-versions-row">
               <div class="monthly-label-wrapper">
                 <label for="monthly-versions-counter">Packages per video</label>
-                <!-- This paragraph shows Total packages and price per package, updated by JS -->
                 <p
                   id="monthly-total-packages"
                   class="monthly-subtitle"
@@ -98,7 +96,6 @@
                 >
                   -
                 </button>
-                <!-- Updated default value to 2 -->
                 <span id="monthly-versions-counter">2</span>
                 <button
                   id="monthly-versions-increment"
@@ -114,17 +111,14 @@
           </div>
           <div class="tab-content" id="annual">
             <div class="annual-total-display">
-              <!-- Main label: shows the discounted monthly cost -->
               <span id="annual-total-amount">$0</span
               ><span style="font-size: 50%">/month</span>
               <br />
-              <!-- Smaller label: shows the annual total cost -->
               <small
                 id="annual-total-year"
                 style="font-size: 0.65em; color: #bbbbbb"
               ></small>
             </div>
-            <!-- Videos per month row -->
             <div class="annual-content-row" id="annual-videos-row">
               <div class="annual-label-wrapper">
                 <label for="annual-videos-counter">Videos per month</label>
@@ -140,14 +134,12 @@
                 <button id="annual-videos-decrement" class="annual-counter-btn">
                   -
                 </button>
-                <!-- Updated default value: 4 -->
                 <span id="annual-videos-counter">4</span>
                 <button id="annual-videos-increment" class="annual-counter-btn">
                   +
                 </button>
               </div>
             </div>
-            <!-- Packages per video row -->
             <div class="annual-content-row" id="annual-versions-row">
               <div class="annual-label-wrapper">
                 <label for="annual-versions-counter">Packages per video</label>
@@ -166,7 +158,6 @@
                 >
                   -
                 </button>
-                <!-- Updated default value: 2 -->
                 <span id="annual-versions-counter">2</span>
                 <button
                   id="annual-versions-increment"
@@ -187,7 +178,6 @@
             <div class="onetime-content-row">
               <div class="onetime-label-wrapper">
                 <label for="onetime-credits-counter">Packages</label>
-                <!-- This paragraph will be updated by JS to show the cost per package -->
                 <p
                   id="onetime-price-per-package"
                   class="onetime-subtitle"

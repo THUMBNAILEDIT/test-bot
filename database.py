@@ -67,3 +67,6 @@ def get_access_token(client_id: str):
         return response.data[0]["access_token"]
     else:
         raise ValueError(f"AccessToken not found for client_id: {client_id}")
+    
+def activate_client_subscription(channel_id: str):
+    supabase.table("clientbase").update({"is_subscription_active": True}).eq("slack_id", channel_id).execute()

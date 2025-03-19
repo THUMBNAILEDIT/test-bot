@@ -1,9 +1,62 @@
+// const accessToken = document.body.dataset.accessToken;
+// const baseUrl = "https://1571-80-91-172-107.ngrok-free.app/";
+
+// function sendPurchaseRequest(plan, total) {
+//   fetch(baseUrl + "api/create-invoice", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({
+//       plan: plan,
+//       total: total,
+//       access_token: accessToken,
+//     }),
+//   })
+//     .then((response) => {
+//       if (response.ok) {
+//         return response.json();
+//       } else {
+//         throw new Error("Failed to process the purchase.");
+//       }
+//     })
+//     .then((data) => {
+//       window.location.href = data.payment_url;
+//     })
+//     .catch((error) => {
+//       console.error("Error:", error);
+//       alert("Something went wrong. Please try again later.");
+//     });
+// }
+
 const accessToken = document.body.dataset.accessToken;
-const baseUrl = "https://thumbnailed-it-slack-bot.onrender.com/";
+const isSubscriptionActive =
+  document.body.dataset.isSubscriptionActive === "true";
+const baseUrl =
+  "https://1c1c-2a02-2378-1040-50f6-e124-656a-ed4-2441.ngrok-free.app/";
+
+const payAsYouGoTab = document.querySelector(
+  '.tab-button[data-tab="pay-as-you-go"]'
+);
+const payAsYouGoContent = document.getElementById("pay-as-you-go");
+const payAsYouGoPurchaseBtn = document.getElementById("onetime-purchase-btn");
+
+console.log("Subscription Active:", isSubscriptionActive);
+console.log("Tab Element:", payAsYouGoTab);
+console.log("Content Element:", payAsYouGoContent);
+console.log("Purchase Button:", payAsYouGoPurchaseBtn);
+
+if (!isSubscriptionActive) {
+  payAsYouGoTab.classList.add("disabled");
+  payAsYouGoContent.classList.add("disabled");
+  payAsYouGoPurchaseBtn.disabled = true;
+} else {
+  payAsYouGoTab.classList.remove("disabled");
+  payAsYouGoContent.classList.remove("disabled");
+  payAsYouGoPurchaseBtn.disabled = false;
+}
 
 function sendPurchaseRequest(plan, total) {
-  //  alert(`Plan: ${plan}, Total: ${total}, AccessToken: ${accessToken}`);
-
   fetch(baseUrl + "api/create-invoice", {
     method: "POST",
     headers: {
@@ -23,7 +76,6 @@ function sendPurchaseRequest(plan, total) {
       }
     })
     .then((data) => {
-      //      alert(`Purchase is successful!`);
       window.location.href = data.payment_url;
     })
     .catch((error) => {
@@ -32,7 +84,7 @@ function sendPurchaseRequest(plan, total) {
     });
 }
 
-// ==================================
+// === === === === === //
 
 const tabButtons = document.querySelectorAll(".tab-button");
 const tabContents = document.querySelectorAll(".tab-content");
@@ -58,26 +110,20 @@ tabButtons.forEach((button) => {
 });
 
 // ===================================================
-// MONTHLY SUBSCRIPTION SECTION
 
-// Get elements for monthly subscription
 const monthlyVideosCounter = document.getElementById("monthly-videos-counter");
 const monthlyVersionsCounter = document.getElementById(
   "monthly-versions-counter"
 );
+
 const monthlyTotalAmount = document.getElementById("monthly-total-amount");
 
-// New updateMonthlyTotal function (calculates dynamically and rounds to integers)
 function updateMonthlyTotal() {
-  // Get current values (as numbers)
   const videos = parseInt(monthlyVideosCounter.textContent, 10);
   const packagesPerVideo = parseInt(monthlyVersionsCounter.textContent, 10);
 
-  // Calculate total packages: Videos per month × Packages per video
   const totalPackages = videos * packagesPerVideo;
 
-  // Calculate price per package:
-  // If total packages is 30 or less, use the formula; otherwise, fix it at $30.
   let pricePerPackage;
   if (totalPackages <= 30) {
     pricePerPackage = 51.43 - 0.7143 * totalPackages;
@@ -85,13 +131,10 @@ function updateMonthlyTotal() {
     pricePerPackage = 30;
   }
 
-  // Calculate the total cost
   const totalCost = totalPackages * pricePerPackage;
 
-  // Update the total price display (rounded to an integer)
   monthlyTotalAmount.textContent = `$${Math.round(totalCost)}`;
 
-  // Calculate Videos per week (divide videos by 4.3) and round to two decimals
   const videosPerWeek = (videos / 4.3).toFixed(2);
   const monthlyVideosPerWeekElement = document.getElementById(
     "monthly-videos-per-week"
@@ -100,7 +143,6 @@ function updateMonthlyTotal() {
     monthlyVideosPerWeekElement.textContent = `Videos per week - ${videosPerWeek}`;
   }
 
-  // Update the Total packages message with integer price per package
   const monthlyTotalPackagesElement = document.getElementById(
     "monthly-total-packages"
   );
@@ -111,20 +153,17 @@ function updateMonthlyTotal() {
   }
 }
 
-// Reset function sets default values: 4 Videos per Month and 2 Packages per Video
 function resetMonthlyValues() {
   monthlyVideosCounter.textContent = "4";
   monthlyVersionsCounter.textContent = "2";
   updateMonthlyTotal();
 }
 
-// Event listeners for Videos per Month buttons
 document
   .getElementById("monthly-videos-increment")
   .addEventListener("click", () => {
     const current = parseInt(monthlyVideosCounter.textContent, 10);
     if (current < 60) {
-      // Maximum is 60 videos per month
       monthlyVideosCounter.textContent = current + 1;
       updateMonthlyTotal();
     }
@@ -135,19 +174,16 @@ document
   .addEventListener("click", () => {
     const current = parseInt(monthlyVideosCounter.textContent, 10);
     if (current > 2) {
-      // Minimum is 2 videos per month
       monthlyVideosCounter.textContent = current - 1;
       updateMonthlyTotal();
     }
   });
 
-// Event listeners for Packages per Video buttons
 document
   .getElementById("monthly-versions-increment")
   .addEventListener("click", () => {
     const current = parseInt(monthlyVersionsCounter.textContent, 10);
     if (current < 4) {
-      // Maximum is 4 packages per video
       monthlyVersionsCounter.textContent = current + 1;
       updateMonthlyTotal();
     }
@@ -158,16 +194,13 @@ document
   .addEventListener("click", () => {
     const current = parseInt(monthlyVersionsCounter.textContent, 10);
     if (current > 1) {
-      // Minimum is 1 package per video
       monthlyVersionsCounter.textContent = current - 1;
       updateMonthlyTotal();
     }
   });
 
-// Initialize monthly values on page load
 resetMonthlyValues();
 
-// Monthly purchase button event
 document
   .getElementById("monthly-purchase-btn")
   .addEventListener("click", () => {
@@ -175,29 +208,19 @@ document
     sendPurchaseRequest("monthly", total);
   });
 
-// ===================================================
-// ANNUAL SUBSCRIPTION SECTION =======================
-
-// Get elements for annual subscription
 const annualVideosCounter = document.getElementById("annual-videos-counter");
 const annualVersionsCounter = document.getElementById(
   "annual-versions-counter"
 );
 const annualTotalAmount = document.getElementById("annual-total-amount");
-// This element displays the annual total cost (small label)
 const annualTotalYear = document.getElementById("annual-total-year");
 
-// New updateAnnualTotal function with 10% discount
 function updateAnnualTotal() {
-  // Get current values (convert to numbers)
   const videos = parseInt(annualVideosCounter.textContent, 10);
   const packagesPerVideo = parseInt(annualVersionsCounter.textContent, 10);
 
-  // Calculate total packages = Videos per month * Packages per video
   const totalPackages = videos * packagesPerVideo;
 
-  // Calculate price per package using the same formula as monthly:
-  // If totalPackages <= 30, price = 51.43 - 0.7143 * totalPackages; otherwise, price = $30.
   let pricePerPackage;
   if (totalPackages <= 30) {
     pricePerPackage = 51.43 - 0.7143 * totalPackages;
@@ -205,24 +228,17 @@ function updateAnnualTotal() {
     pricePerPackage = 30;
   }
 
-  // Calculate the monthly cost (before discount)
   const monthlyCost = totalPackages * pricePerPackage;
   const roundedMonthlyCost = Math.round(monthlyCost);
 
-  // Apply a 10% discount for annual subscriptions:
   const discountedMonthlyCost = Math.round(roundedMonthlyCost * 0.9);
 
-  // Annual cost is 12 times the discounted monthly cost
   const annualCost = discountedMonthlyCost * 12;
 
-  // Update the main annual label to show the discounted monthly cost (without duplicating "/month")
   annualTotalAmount.textContent = `$${discountedMonthlyCost}`;
 
-  // Update the smaller label to show the annual total cost.
-  // "$XXX" is in the current font size, and "/year" is set to 50% of that.
   annualTotalYear.innerHTML = `$${annualCost}<span style="font-size:50%;">/year</span>`;
 
-  // (Optional) Update "Videos per week" if desired (annual version uses same formula)
   const videosPerWeek = (videos / 4.3).toFixed(2);
   const annualVideosPerWeekElement = document.getElementById(
     "annual-videos-per-week"
@@ -231,8 +247,6 @@ function updateAnnualTotal() {
     annualVideosPerWeekElement.textContent = `Videos per week - ${videosPerWeek}`;
   }
 
-  // Update the "Total packages" message with discounted per package price
-  // (Apply 10% discount to the per package price as well)
   const annualTotalPackagesElement = document.getElementById(
     "annual-total-packages"
   );
@@ -243,20 +257,17 @@ function updateAnnualTotal() {
   }
 }
 
-// Reset function: sets default values for annual subscription (4 videos and 2 packages)
 function resetAnnualValues() {
   annualVideosCounter.textContent = "4";
   annualVersionsCounter.textContent = "2";
   updateAnnualTotal();
 }
 
-// Event listeners for annual Videos per Month buttons
 document
   .getElementById("annual-videos-increment")
   .addEventListener("click", () => {
     const current = parseInt(annualVideosCounter.textContent, 10);
     if (current < 60) {
-      // Maximum is 60 videos per month
       annualVideosCounter.textContent = current + 1;
       updateAnnualTotal();
     }
@@ -267,19 +278,16 @@ document
   .addEventListener("click", () => {
     const current = parseInt(annualVideosCounter.textContent, 10);
     if (current > 2) {
-      // Minimum is 2 videos per month
       annualVideosCounter.textContent = current - 1;
       updateAnnualTotal();
     }
   });
 
-// Event listeners for annual Packages per Video buttons
 document
   .getElementById("annual-versions-increment")
   .addEventListener("click", () => {
     const current = parseInt(annualVersionsCounter.textContent, 10);
     if (current < 4) {
-      // Maximum is 4 packages per video
       annualVersionsCounter.textContent = current + 1;
       updateAnnualTotal();
     }
@@ -290,38 +298,26 @@ document
   .addEventListener("click", () => {
     const current = parseInt(annualVersionsCounter.textContent, 10);
     if (current > 1) {
-      // Minimum is 1 package per video
       annualVersionsCounter.textContent = current - 1;
       updateAnnualTotal();
     }
   });
 
-// Initialize annual values on page load with default settings
 resetAnnualValues();
 
-// Annual purchase button: when clicked, send the annual total (from the small label) to the payment system.
 document.getElementById("annual-purchase-btn").addEventListener("click", () => {
   const annualTotalYearText = annualTotalYear.textContent;
-  // Remove the "$" and "/year" parts to obtain a number.
   const total = parseFloat(
     annualTotalYearText.replace("$", "").replace("/year", "")
   );
   sendPurchaseRequest("annual", total);
 });
 
-// ===================================================
-// ONETIME (PAY AS YOU GO) SECTION ===================
-
-// Get elements for onetime subscription (pay as you go)
 const onetimeCreditsCounter = document.getElementById(
   "onetime-credits-counter"
 );
 const onetimeTotalAmount = document.getElementById("onetime-total-amount");
 
-// The dynamic pricing for onetime (pay as you go):
-// For q packages (1 ≤ q ≤ 10):
-//   Cost per package = 60 - (10/9) * (q - 1)
-//   Total cost = q * (cost per package), rounded to the nearest integer.
 function computeOnetimeTotal(q) {
   let costPerPackage = 60 - (10 / 9) * (q - 1);
   let total = q * costPerPackage;
@@ -333,7 +329,6 @@ function updateOnetimeTotal() {
   const total = computeOnetimeTotal(credits);
   onetimeTotalAmount.textContent = `$${total}`;
 
-  // Compute cost per package for onetime pricing
   let costPerPackage = 60 - (10 / 9) * (credits - 1);
   costPerPackage = Math.round(costPerPackage);
   const onetimePricePerPackageElement = document.getElementById(

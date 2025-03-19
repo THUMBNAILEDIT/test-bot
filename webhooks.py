@@ -66,7 +66,6 @@ def asana_webhook():
                             {
                                 "type": "actions",
                                 "elements": [
-                                    # {"type": "button", "text": {"type": "plain_text", "text": "Approve"}, "action_id": "accept_work"},
                                     {"type": "button", "text": {"type": "plain_text", "text": "Approve"}, "action_id": "accept_work", "value": str(task_id)},
                                     {"type": "button", "text": {"type": "plain_text", "text": "Request Revisions"}, "action_id": "request_revisions"},
                                 ],
@@ -90,7 +89,6 @@ def asana_webhook():
                             {
                                 "type": "actions",
                                 "elements": [
-                                    # {"type": "button", "text": {"type": "plain_text", "text": "Approve"}, "action_id": "accept_work"},
                                     {"type": "button", "text": {"type": "plain_text", "text": "Approve"}, "action_id": "accept_work", "value": str(task_id)},
                                     {"type": "button", "text": {"type": "plain_text", "text": "Request Revisions"}, "action_id": "request_revisions"},
                                 ],
@@ -112,12 +110,8 @@ def handle_accept_work(ack, body, client):
     message_ts = body["message"]["ts"]
     response_url = body["response_url"]
 
-    # logging.debug(f"Task ID: {body}")
-    # task_id = body["elements"][0]["value"]
-
     client_info = fetch_client_data(channel_id)
     if client_info:
-        # task_id = client_info.get("current_tasks", "").split(",")[0]
         task_id = body.get("actions")[0].get("value")
         if task_id:
             move_task_to_archive(task_id)
