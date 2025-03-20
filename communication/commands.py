@@ -1,14 +1,16 @@
 from flask import Flask
 from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
-from database import (
+from .asana_utils import create_asana_task, register_webhook_for_task
+from config.config import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET, BACKEND_BASEURL
+from .task_details import create_task_details
+from context.document_retrieval import fetch_google_doc_content
+from database.database import (
     fetch_client_data,
     update_client_credits,
     update_client_current_tasks,
     get_access_token
 )
-from asana_utils import create_asana_task, register_webhook_for_task, create_asana_subtask
-from config import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET, BACKEND_BASEURL
 
 app = App(token=SLACK_BOT_TOKEN, signing_secret=SLACK_SIGNING_SECRET)
 
@@ -18,7 +20,6 @@ handler = SlackRequestHandler(app)
 @app.command("/request")
 def handle_request(ack, body, client):
     ack()
-    user_id = body["user_id"]
 
     modal_view = {
         "type": "modal",
@@ -104,7 +105,6 @@ def handle_modal_submission(ack, body, client):
     ack()
 
     state_values = body["view"]["state"]["values"]
-    user_id = body["user"]["id"]
     channel_id = body["view"]["private_metadata"]
 
     video_link = state_values["video_link"]["input"]["value"]
@@ -129,13 +129,11 @@ def handle_modal_submission(ack, body, client):
 
     current_credits = client_info.get("current_credits", 0)
     if current_credits < required_credits:
-        access_token = get_access_token(channel_id)
-        payment_url = f"{BACKEND_BASEURL}pricing/{access_token}"
         client.chat_postMessage(
             channel=channel_id,
             text=(
-                f"*Sorry, seems you don't have enough credits. "
-                f"Please refill the <{payment_url}|tank> and try again.*"
+                "*Sorry, seems you don't have enough credits. "
+                "Please refill the tank and try again.*"
             )
         )
         return
@@ -158,24 +156,17 @@ Video Link: {video_link}
 Additional Info: {additional_info}
 """
 
-    main_task_description = (
-        "1.\nThumbnail:\nTitle:\nDescription:\n\n"
-        "2.\nThumbnail:\nTitle:\nDescription:\n\n"
-        "3.\nThumbnail:\nTitle:\nDescription:\n\n"
-        "4.\nThumbnail:\nTitle:\nDescription:\n\n"
-        "Links for converting images - https://uk.imgbb.com/"
-    )
-
     task_name = f"Request from {client_info.get('client_name_short', 'Unknown')}"
-    main_task_id = create_asana_task(task_name, main_task_description)
+    task_id = create_asana_task(task_name, task_notes)
 
-    if main_task_id:
-        subtask_name = "Order Details"
-        subtask_id = create_asana_subtask(main_task_id, subtask_name, task_notes)
-        
-        update_client_current_tasks(channel_id, main_task_id)
-        register_webhook_for_task(main_task_id)
+    if task_id:
+        update_client_current_tasks(channel_id, task_id)
+        register_webhook_for_task(task_id)
         update_client_credits(channel_id, current_credits - required_credits)
+
+        create_task_details(channel_id, task_id, video_link, additional_info, thumbnail_packages)
+        fetch_google_doc_content(video_link)
+
         client.chat_postMessage(
             channel=channel_id,
             text=(

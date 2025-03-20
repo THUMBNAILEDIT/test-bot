@@ -1,34 +1,3 @@
-// const accessToken = document.body.dataset.accessToken;
-// const baseUrl = "https://1571-80-91-172-107.ngrok-free.app/";
-
-// function sendPurchaseRequest(plan, total) {
-//   fetch(baseUrl + "api/create-invoice", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify({
-//       plan: plan,
-//       total: total,
-//       access_token: accessToken,
-//     }),
-//   })
-//     .then((response) => {
-//       if (response.ok) {
-//         return response.json();
-//       } else {
-//         throw new Error("Failed to process the purchase.");
-//       }
-//     })
-//     .then((data) => {
-//       window.location.href = data.payment_url;
-//     })
-//     .catch((error) => {
-//       console.error("Error:", error);
-//       alert("Something went wrong. Please try again later.");
-//     });
-// }
-
 const accessToken = document.body.dataset.accessToken;
 const isSubscriptionActive =
   document.body.dataset.isSubscriptionActive === "true";

@@ -2,9 +2,10 @@ import os
 import requests
 from flask import request, jsonify
 from slack_bolt.adapter.flask import SlackRequestHandler
-
-from config import ASANA_ADMIN_ID
-from database import (
+from .asana_utils import move_task_to_archive
+from .commands import app
+from config.config import ASANA_ADMIN_ID
+from database.database import (
     fetch_client_data,
     fetch_client_data_by_task_id,
     update_client_thread_mapping,
@@ -12,8 +13,6 @@ from database import (
     remove_thread_mappings_for_task,
     update_task_history
 )
-from asana_utils import move_task_to_archive
-from commands import app
 
 handler = SlackRequestHandler(app)
 

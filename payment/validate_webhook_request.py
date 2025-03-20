@@ -3,7 +3,7 @@ import hashlib
 import ecdsa
 import requests
 
-from config import MONOBANK_API_BASEURL, MONOBANK_API_KEY
+from config.config import MONOBANK_API_BASEURL, MONOBANK_API_KEY
 
 def fetch_public_key():
     url = MONOBANK_API_BASEURL+"merchant/pubkey"

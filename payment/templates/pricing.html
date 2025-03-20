@@ -14,9 +14,11 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="..//static/styles.css" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
   </head>
-  <!-- <body data-access-token="{{ access_token }}"> -->
   <body
     data-access-token="{{ access_token }}"
     data-is-subscription-active="{{ is_subscription_active }}"
@@ -209,6 +211,6 @@
         </div>
       </section>
     </main>
-    <script src="..//static/script.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>

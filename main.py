@@ -1,13 +1,13 @@
 from flask import Flask, request, jsonify, render_template
 
 from payment.validate_webhook_request import validate_request
-from webhooks import handler, asana_webhook
-from commands import app
+from communication.webhooks import handler, asana_webhook
+from communication.commands import app
 from slack_bolt.adapter.flask import SlackRequestHandler
-from purchase_handler import process_monobank_payment_webhook, verify_access_token, send_invoice_to_monobank
-from database import supabase
+from payment.purchase_handler import process_monobank_payment_webhook, verify_access_token, send_invoice_to_monobank
+from database.database import supabase
 
-flask_app = Flask(__name__)
+flask_app = Flask(__name__, template_folder="payment/templates", static_folder="payment/static")
 handler = SlackRequestHandler(app)
 
 @flask_app.route("/slack/events", methods=["GET", "POST"])
@@ -32,42 +32,8 @@ def slack_commands():
 def asana_webhook_route():
     return asana_webhook()
 
-# ===
-
-# @flask_app.route("/pricing/<access_token>")
-# def pricing_page(access_token):
-#     response = verify_access_token(access_token)
-#     if response[1] != 200:
-#         return render_template("403.html"), 403
-
-#     return render_template("pricing.html", access_token=access_token)
-
-# ===
-
-# @flask_app.route("/pricing/<access_token>")
-# def pricing_page(access_token):
-#     response = verify_access_token(access_token)
-#     if response[1] != 200:
-#         return render_template("403.html"), 403
-
-#     client_data = supabase.table("clientbase").select("is_subscription_active").eq("access_token", access_token).execute()
-    
-#     # is_subscription_active = client_data.data[0]["is_subscription_active"] if client_data.data else False
-#     is_subscription_active = client_data.data[0]["is_subscription_active"] if client_data.data else "hello"
-
-#     import logging
-#     logging.basicConfig(level=logging.INFO)
-#     logging.info(f"is_subscription_active: {is_subscription_active}")
-#     logging.info(client_data)
-#     logging.info(client_data.data[0])
-
-#     return render_template("pricing.html", access_token=access_token, is_subscription_active=is_subscription_active)
-
 @flask_app.route("/pricing/<access_token>")
 def pricing_page(access_token):
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    logging.info(f"pricing_page endpoint hit with access_token: {access_token}")
 
     response = verify_access_token(access_token)
     if response[1] != 200:
@@ -77,16 +43,7 @@ def pricing_page(access_token):
     
     is_subscription_active = client_data.data[0]["is_subscription_active"] if client_data.data else "hello"
 
-    logging.info(f"is_subscription_active: {is_subscription_active}")
-
-    logging.info(f"Raw client data: {client_data}")
-    logging.info(f"First entry in data: {client_data.data[0] if client_data.data else 'No data'}")
-
-    return render_template("pricing.html", 
-                       access_token=access_token, 
-                       is_subscription_active="true" if is_subscription_active else "false")
-
-# ===
+    return render_template("pricing.html", access_token=access_token, is_subscription_active="true" if is_subscription_active else "false")
 
 @flask_app.route("/api/create-invoice", methods=["POST"])
 def create_invoice():

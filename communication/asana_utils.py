@@ -1,5 +1,5 @@
 import requests
-from config import ASANA_ACCESS_TOKEN, ASANA_PROJECT_ID, ASANA_ARCHIVE_PROJECT_ID, ASANA_WEBHOOK_URL
+from config.config import ASANA_ACCESS_TOKEN, ASANA_PROJECT_ID, ASANA_ARCHIVE_PROJECT_ID, ASANA_WEBHOOK_URL
 
 if not ASANA_WEBHOOK_URL:
     raise ValueError("ASANA_WEBHOOK_URL environment variable is not set!")
@@ -76,24 +76,3 @@ def move_task_to_archive(task_id):
             print(f"Failed to move task {task_id} to archive: {add_response.text}")
         elif response.status_code != 200:
             print(f"Failed to fetch current projects for task {task_id}: {response.text}")
-
-def create_asana_subtask(parent_task_id, subtask_name, subtask_notes):
-    url = f"https://app.asana.com/api/1.0/tasks/{parent_task_id}/subtasks"
-    headers = {
-        "Authorization": f"Bearer {ASANA_ACCESS_TOKEN}"
-    }
-    data = {
-        "data": {
-            "name": subtask_name,
-            "notes": subtask_notes
-        }
-    }
-
-    response = requests.post(url, headers=headers, json=data)
-
-    if response.status_code == 201:
-        subtask_id = response.json().get("data", {}).get("gid")
-        return subtask_id
-    else:
-        print(f"Failed to create subtask: {response.text}")
-        return None
