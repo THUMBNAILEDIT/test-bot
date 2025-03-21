@@ -42,7 +42,9 @@ def fetch_google_doc_content(video_link):
             for el in element['paragraph'].get('elements', []):
                 if 'textRun' in el and 'content' in el['textRun']:
                     video_script += el['textRun']['content']
-        
+    
+    # logging.info("Video script: %s", video_script)
+
     delete_from_task_details("video_link")
     add_to_task_details("video_script", video_script)
     additional_info = get_task_details("additional_info")

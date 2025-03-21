@@ -2,7 +2,7 @@ from openai import OpenAI
 import logging
 from config.config import OPENAI_API_KEY
 from communication.task_details import delete_from_task_details, add_to_task_details
-from research.check import check
+from research.youtube_search import youtube_search
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -26,6 +26,8 @@ def get_video_context(video_script, additional_info):
         )
         
         video_context = response.choices[0].message.content.strip()
+
+        # logging.info("Video context: %s", video_context)
         
         add_to_task_details("video_context", video_context)
 
@@ -57,6 +59,8 @@ def create_video_description (video_script, additional_info):
         
         video_description = response.choices[0].message.content.strip()
 
+        # logging.info("Video Context: %s", video_description)
+        
         add_to_task_details("video_description", video_description)
 
         return video_description
@@ -68,7 +72,7 @@ def create_video_description (video_script, additional_info):
 
 def get_video_query(video_script, additional_info):
     prompt = (
-        "Analyze the following information and, separated by commas, list 5 key words and / or short phrases from it that could be used to search for similar or relevant information.\n\n"
+        "Analyze the following information and give only 1 key word or 1 short phrase from it that could be used to search for similar or relevant videos on YouTube.\n\n"
         "Video Script:\n" + video_script + "\n\n"
         "Additional Information:\n" + additional_info + "\n\n"
         "Summary:"
@@ -87,11 +91,13 @@ def get_video_query(video_script, additional_info):
         
         video_query = response.choices[0].message.content.strip()
 
+        # logging.info("Video Context: %s", video_query)
+
         add_to_task_details("video_query", video_query)
         delete_from_task_details("video_script")
         delete_from_task_details("additional_info")
 
-        check(video_query)
+        youtube_search(video_query)
 
         return video_query
     
