@@ -1,8 +1,10 @@
 from openai import OpenAI
+import json
 import logging
 from config.config import OPENAI_API_KEY
 from communication.task_details import delete_from_task_details, add_to_task_details
 from research.youtube_search import youtube_search
+from research.youtube_filter import youtube_filter
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
@@ -27,8 +29,9 @@ def get_video_context(video_script, additional_info):
         
         video_context = response.choices[0].message.content.strip()
 
-        # logging.info("Video context: %s", video_context)
-        
+        # pretty_details = json.dumps(video_context, indent=4, ensure_ascii=False)
+        # logging.info(pretty_details)
+
         add_to_task_details("video_context", video_context)
 
         return video_context
@@ -59,8 +62,9 @@ def create_video_description (video_script, additional_info):
         
         video_description = response.choices[0].message.content.strip()
 
-        # logging.info("Video Context: %s", video_description)
-        
+        # pretty_details = json.dumps(video_description, indent=4, ensure_ascii=False)
+        # logging.info(pretty_details)
+
         add_to_task_details("video_description", video_description)
 
         return video_description
@@ -68,14 +72,16 @@ def create_video_description (video_script, additional_info):
     except Exception as e:
         logging.error("Error during ChatGPT API call: %s", e)
         return None
-    
+
 
 def get_video_query(video_script, additional_info):
     prompt = (
-        "Analyze the following information and give only 1 key word or 1 short phrase from it that could be used to search for similar or relevant videos on YouTube.\n\n"
+        "Analyze the following information and generate five accurate word or short phrase search queries that you would use "
+        "to search for very similar and relevant videos on YouTube. Return the five queries as a JSON array. Each query should "
+        "be concise and relevant to the content.\n\n"
         "Video Script:\n" + video_script + "\n\n"
         "Additional Information:\n" + additional_info + "\n\n"
-        "Summary:"
+        "JSON Array of 5 Queries:"
     )
     
     try:
@@ -89,17 +95,33 @@ def get_video_query(video_script, additional_info):
             max_tokens=150
         )
         
-        video_query = response.choices[0].message.content.strip()
+        video_queries_str = response.choices[0].message.content.strip()
+        if video_queries_str.startswith("```"):
+            video_queries_str = "\n".join(
+                line for line in video_queries_str.splitlines() if not line.strip().startswith("```")
+            )
+        
+        video_queries_str = video_queries_str.strip()
+        video_queries = json.loads(video_queries_str)
 
-        # logging.info("Video Context: %s", video_query)
-
-        add_to_task_details("video_query", video_query)
+        # pretty_details = json.dumps(video_queries, indent=4, ensure_ascii=False)
+        # logging.info(pretty_details)
+        
+        add_to_task_details("video_queries", video_queries)
         delete_from_task_details("video_script")
         delete_from_task_details("additional_info")
-
-        youtube_search(video_query)
-
-        return video_query
+        
+        aggregated_videos = []
+        for query in video_queries:
+            videos = youtube_search(query)
+            if videos:
+                aggregated_videos.extend(videos)
+        
+        aggregated_videos = aggregated_videos[:100]
+        
+        youtube_filter(aggregated_videos)
+        
+        return video_queries
     
     except Exception as e:
         logging.error("Error during ChatGPT API call: %s", e)

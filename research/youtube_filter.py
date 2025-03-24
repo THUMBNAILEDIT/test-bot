@@ -1,6 +1,34 @@
 import json
 import logging
 
-def check(found_videos):
-    logging.info("Launching info in YouTube Filter")
-    logging.info(json.dumps(found_videos, indent=4, ensure_ascii=False))
+from generation.filtered_videos_analysis import filtered_videos_analysis
+
+def youtube_filter(aggregated_videos):    
+    K = 7
+    beta = 0.01
+
+    for video in aggregated_videos:
+        try:
+            views = int(video.get("viewCount", "0"))
+        except ValueError:
+            views = 0
+        try:
+            likes = int(video.get("likeCount", "0")) if video.get("likeCount") is not None else 0
+        except ValueError:
+            likes = 0
+        age = video.get("age", 0)
+        
+        score = views / (age + K) + beta * likes
+        
+        video["score"] = score
+
+    sorted_videos = sorted(aggregated_videos, key=lambda x: x.get("score", 0), reverse=True)
+    
+    filtered_videos = sorted_videos[:10]
+
+    filtered_videos_analysis(filtered_videos)
+    
+    # logging.info("Top 10 videos by score:")
+    # logging.info(json.dumps(filtered_videos, indent=4, ensure_ascii=False))
+    
+    return filtered_videos
