@@ -2,7 +2,7 @@ const accessToken = document.body.dataset.accessToken;
 const isSubscriptionActive =
   document.body.dataset.isSubscriptionActive === "true";
 const baseUrl =
-  "https://1c1c-2a02-2378-1040-50f6-e124-656a-ed4-2441.ngrok-free.app/";
+  " https://9360-2a02-2378-136d-6d78-d1f6-3f77-d931-1bb2.ngrok-free.app/";
 
 const payAsYouGoTab = document.querySelector(
   '.tab-button[data-tab="pay-as-you-go"]'

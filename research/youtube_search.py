@@ -3,6 +3,7 @@ import requests
 import logging
 from datetime import datetime, timezone
 from config.config import YOUTUBE_DATA_API_KEY
+from communication.task_details import delete_from_task_details
 
 logging.basicConfig(level=logging.INFO)
 
@@ -108,5 +109,7 @@ def youtube_search(video_query):
         next_page_token = data.get('nextPageToken')
         if not next_page_token:
             break
+
+        delete_from_task_details("video_queries")
 
     return found_videos[:target_count]

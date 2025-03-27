@@ -1,7 +1,7 @@
 import json
 import logging
 
-from generation.filtered_videos_analysis import filtered_videos_analysis
+from research.filtered_videos_analysis import filtered_videos_analysis
 
 def youtube_filter(aggregated_videos):    
     K = 7
@@ -22,9 +22,9 @@ def youtube_filter(aggregated_videos):
         
         video["score"] = score
 
-    sorted_videos = sorted(aggregated_videos, key=lambda x: x.get("score", 0), reverse=True)
+    sorted_videos = sorted(aggregated_videos, key=lambda x: x.get("score", 0), reverse=True)[:10]
     
-    filtered_videos = sorted_videos[:10]
+    filtered_videos = [{"title": video["title"], "thumbnail": video["thumbnail"]} for video in sorted_videos]
 
     filtered_videos_analysis(filtered_videos)
     
