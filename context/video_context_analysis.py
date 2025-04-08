@@ -2,11 +2,13 @@ from openai import OpenAI
 import json
 import logging
 from config.config import OPENAI_API_KEY
-from communication.task_details import delete_from_task_details, add_to_task_details
+from communication.task_details import add_to_task_details
 from research.youtube_search import youtube_search
 from research.youtube_filter import youtube_filter
 
 client = OpenAI(api_key=OPENAI_API_KEY)
+
+# ========================================================
 
 def get_video_context(video_script, additional_info):
     prompt = (
@@ -40,6 +42,7 @@ def get_video_context(video_script, additional_info):
         logging.error("Error during ChatGPT API call: %s", e)
         return None
     
+# ========================================================
 
 def create_video_description (video_script, additional_info):
     prompt = (
@@ -73,6 +76,7 @@ def create_video_description (video_script, additional_info):
         logging.error("Error during ChatGPT API call: %s", e)
         return None
 
+# ========================================================
 
 def get_video_query(video_script, additional_info):
     prompt = (
@@ -108,8 +112,6 @@ def get_video_query(video_script, additional_info):
         # logging.info(pretty_details)
         
         add_to_task_details("video_queries", video_queries)
-        delete_from_task_details("video_script")
-        delete_from_task_details("additional_info")
         
         aggregated_videos = []
         for query in video_queries:

@@ -1,7 +1,8 @@
 import json
 import logging
+from research.filtered_videos_analysis import titles_analysis, thumbnails_analysis
 
-from research.filtered_videos_analysis import filtered_videos_analysis
+# ========================================================
 
 def youtube_filter(aggregated_videos):    
     K = 7
@@ -26,7 +27,8 @@ def youtube_filter(aggregated_videos):
     
     filtered_videos = [{"title": video["title"], "thumbnail": video["thumbnail"]} for video in sorted_videos]
 
-    filtered_videos_analysis(filtered_videos)
+    titles_analysis(filtered_videos)
+    thumbnails_analysis(filtered_videos)
     
     # logging.info("Top 10 videos by score:")
     # logging.info(json.dumps(filtered_videos, indent=4, ensure_ascii=False))

@@ -2,11 +2,13 @@ import re
 import logging
 from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
-from communication.task_details import get_task_details, delete_from_task_details, add_to_task_details
+from communication.task_details import get_task_details, add_to_task_details
 from config.config import GOOGLE_DOCS_CREDENTIALS
 from context.video_context_analysis import get_video_context, create_video_description, get_video_query
 
 logging.basicConfig(level=logging.INFO)
+
+# ========================================================
 
 def fetch_google_doc_content(video_link):
     match = re.search(r'/d/([a-zA-Z0-9-_]+)', video_link)
@@ -45,7 +47,6 @@ def fetch_google_doc_content(video_link):
     
     # logging.info("Video script: %s", video_script)
 
-    delete_from_task_details("video_link")
     add_to_task_details("video_script", video_script)
     additional_info = get_task_details("additional_info")
 

@@ -1,5 +1,5 @@
+import logging
 from flask import Flask, request, jsonify, render_template
-
 from payment.validate_webhook_request import validate_request
 from communication.webhooks import handler, asana_webhook
 from communication.commands import app
@@ -7,30 +7,41 @@ from slack_bolt.adapter.flask import SlackRequestHandler
 from payment.purchase_handler import process_monobank_payment_webhook, verify_access_token, send_invoice_to_monobank
 from database.database import supabase
 
+# ========================================================
+
 flask_app = Flask(__name__, template_folder="payment/templates", static_folder="payment/static")
 handler = SlackRequestHandler(app)
+
+# ========================================================
 
 @flask_app.route("/slack/events", methods=["GET", "POST"])
 def slack_events():
     try:
         if request.method == "GET":
-            print("GET request received at /slack/events")
+            # logging.info("GET request received at /slack/events")
             return "Endpoint verified", 200
 
         if request.method == "POST":
             return handler.handle(request)
 
     except Exception as e:
-        print(f"Error: {e}")
+        logging.error(f"Error: {e}")
+
         return jsonify({"error": "Invalid request format", "message": str(e)}), 400
+
+# ========================================================
 
 @flask_app.route("/slack/commands", methods=["POST"])
 def slack_commands():
     return handler.handle(request)
 
+# ========================================================
+
 @flask_app.route("/asana-webhook", methods=["POST"])
 def asana_webhook_route():
     return asana_webhook()
+
+# ========================================================
 
 @flask_app.route("/pricing/<access_token>")
 def pricing_page(access_token):
@@ -45,6 +56,8 @@ def pricing_page(access_token):
 
     return render_template("pricing.html", access_token=access_token, is_subscription_active="true" if is_subscription_active else "false")
 
+# ========================================================
+
 @flask_app.route("/api/create-invoice", methods=["POST"])
 def create_invoice():
     data = request.get_json()
@@ -56,6 +69,8 @@ def create_invoice():
 
     response, status_code = send_invoice_to_monobank(total, access_token)
     return jsonify(response), status_code
+
+# ========================================================
 
 @flask_app.route("/monobank/webhook", methods=["POST", "GET"])
 def monobank_webhook():

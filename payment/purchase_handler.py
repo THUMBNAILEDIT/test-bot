@@ -1,10 +1,12 @@
+import requests
+import datetime
+import pytz
+import logging
 from config.config import MONOBANK_API_BASEURL, BACKEND_BASEURL, MONOBANK_API_KEY
 from communication.commands import app as slack_app
 from database.database import supabase, activate_client_subscription
 
-import requests
-import datetime
-import pytz
+# ========================================================
 
 monthly_pricing_table = {
     100: 2, 148: 3, 194: 4, 239: 5, 283: 6, 325: 7, 366: 8, 405: 9,
@@ -26,6 +28,8 @@ monthly_pricing_table = {
     5400: 180, 5520: 184, 5640: 188, 5760: 192, 5880: 196, 6000: 200, 6120: 204, 6240: 208,
     6360: 212, 6480: 216, 6600: 220, 6720: 224, 6840: 228, 6960: 232, 7080: 236, 7200: 240,
 }
+
+# ========================================================
 
 annual_pricing_table = {
     1080: 2, 1596: 3, 2100: 4, 2580: 5, 3060: 6, 3516: 7, 3948: 8, 4380: 9,
@@ -49,6 +53,8 @@ annual_pricing_table = {
     69984: 216, 71280: 220, 72576: 224, 73872: 228, 75168: 232, 76464: 236, 77760: 240,
 }
 
+# ========================================================
+
 one_time_pricing_table = {
     60: 1,
     118: 2,
@@ -62,6 +68,8 @@ one_time_pricing_table = {
     500: 10,
 }
 
+# ========================================================
+
 def get_plan_from_total(total: int):
     if total in monthly_pricing_table:
         return "monthly"
@@ -70,6 +78,8 @@ def get_plan_from_total(total: int):
     elif total in one_time_pricing_table:
         return "onetime"
     return None
+
+# ========================================================
 
 def calculate_credits(plan: str, total: int) -> int:
     if plan == "monthly":
@@ -80,6 +90,8 @@ def calculate_credits(plan: str, total: int) -> int:
         return one_time_pricing_table.get(total, 0)
     return 0
 
+# ========================================================
+
 def verify_access_token(access_token):
     if not access_token:
         return {"error": "AccessToken is required"}, 403
@@ -89,6 +101,8 @@ def verify_access_token(access_token):
         return {"error": f"AccessToken '{access_token}' not found"}, 403
 
     return {"message": "AccessToken is valid"}, 200
+
+# ========================================================
 
 def send_invoice_to_monobank(total, access_token):
     try:
@@ -115,6 +129,8 @@ def send_invoice_to_monobank(total, access_token):
     except Exception as e:
         return {"error": str(e)}, 500
 
+# ========================================================
+
 def load_card_token(invoice_id):
     try:
         response = requests.get(f"{MONOBANK_API_BASEURL}merchant/invoice/status?invoiceId={invoice_id}",
@@ -123,11 +139,13 @@ def load_card_token(invoice_id):
         if card_token:
             return card_token
         else:
-            print("No card token found, json response:", response.json())
+            logging.error(f"No card token found in response: {response.json()}")
             return None
     except Exception as e:
-        print("Error loading card token:", e)
+        logging.error(f"Error loading card token: {e}")
         return None
+
+# ========================================================
 
 def update_payment_info(data):
     total_str = data.get("destination", "")
@@ -158,30 +176,32 @@ def update_payment_info(data):
 
         supabase.table("clientbase").update(new_payment_info).eq("access_token", access_token).execute()
 
+# ========================================================
+
 def process_monobank_payment_webhook(data):
     try:
-        print("Webhook data:", data)
+        logging.info("Webhook data: %s", data)
         
         payment_status = data.get("status")
         access_token = data.get("reference")
         invoice_id = data.get("invoiceId")
-        print("Invoice ID received:", invoice_id)
+        logging.info("Invoice ID received: %s", invoice_id)
         
         total_str = data.get("destination", "")
         if not total_str.isdigit():
-            print("Invalid destination value:", total_str)
+            logging.error("Invalid destination value:", total_str)
             return {"error": "Invalid webhook data"}, 400
 
         total = int(total_str)
         if not access_token or not total or not invoice_id:
-            print("Missing required data:", access_token, total, invoice_id)
+            logging.error("Missing required data:", access_token, total, invoice_id)
             return {"error": "Invalid webhook data"}, 400
 
         if payment_status == "success":
             existing = supabase.table("transactions").select("*").eq("invoiceId", invoice_id).execute()
-            print("Existing transactions for invoice:", existing.data)
+            logging.info("Existing transactions for invoice:", existing.data)
             if existing.data:
-                print("Transaction already processed, skipping credit update.")
+                logging.info("Transaction already processed, skipping credit update.")
                 return {"message": "Transaction already processed"}, 200
 
             response = supabase.table("clientbase").select("current_credits, slack_id").eq("access_token", access_token).execute()
@@ -198,7 +218,7 @@ def process_monobank_payment_webhook(data):
                 update_payment_info(data)
 
                 supabase.table("transactions").insert({"invoiceId": invoice_id, "status": "processed"}).execute()
-                print("Inserted transaction for invoice:", invoice_id)
+                logging.info("Inserted transaction for invoice:", invoice_id)
 
                 if plan == "onetime":
                     text_msg = (f"The purchase of {added_credits} credits was successful. "
@@ -217,13 +237,13 @@ def process_monobank_payment_webhook(data):
                 if slack_id:
                     slack_app.client.chat_postMessage(channel=slack_id, text=text_msg)
                 else:
-                    print("No slack_id found for user with access_token:", access_token)
+                    logging.error("No slack_id found for user with access_token:", access_token)
 
                 return {"message": "Credits updated successfully"}, 200
 
-        print("Payment not successful or invalid status.")
+        logging.error("Payment not successful or invalid status:", payment_status)
         return {"error": "Payment not successful or invalid status"}, 400
 
     except Exception as e:
-        print("Error in process_monobank_payment_webhook:", e)
+        logging.error("Error in process_monobank_payment_webhook:", e)
         return {"error": str(e)}, 500

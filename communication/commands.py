@@ -1,10 +1,12 @@
+import json
 from flask import Flask
 from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
-from .asana_utils import create_asana_task, register_webhook_for_task
 from config.config import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET, BACKEND_BASEURL
-from .task_details import create_task_details
 from context.document_retrieval import fetch_google_doc_content
+from communication.task_details import get_task_details
+from .asana_utils import create_asana_task, register_webhook_for_task
+from .task_details import create_task_details
 from database.database import (
     fetch_client_data,
     update_client_credits,
@@ -12,10 +14,14 @@ from database.database import (
     get_access_token
 )
 
+# ========================================================
+
 app = App(token=SLACK_BOT_TOKEN, signing_secret=SLACK_SIGNING_SECRET)
 
 flask_app = Flask(__name__)
 handler = SlackRequestHandler(app)
+
+# ========================================================
 
 @app.command("/request")
 def handle_request(ack, body, client):
@@ -71,6 +77,8 @@ def handle_request(ack, body, client):
 
     client.views_open(trigger_id=body["trigger_id"], view=modal_view)
 
+# ========================================================
+
 @app.command("/balance")
 def handle_balance(ack, command):
     ack()
@@ -99,6 +107,8 @@ def handle_balance(ack, command):
             channel=channel_id,
             text="*Error:* We couldn't find your client info. Please ensure your Slack channel is registered.\n\n"
         )
+
+# ========================================================
 
 @app.view("request_modal_submission")
 def handle_modal_submission(ack, body, client):
@@ -160,25 +170,36 @@ Additional Info: {additional_info}
     task_id = create_asana_task(task_name, task_notes)
 
     if task_id:
+
         update_client_current_tasks(channel_id, task_id)
         register_webhook_for_task(task_id)
         update_client_credits(channel_id, current_credits - required_credits)
 
-        create_task_details(channel_id, task_id, video_link, additional_info, thumbnail_packages)
-        fetch_google_doc_content(video_link)
+        is_vip = client_info.get('is_client_vip', False)
 
-        client.chat_postMessage(
-            channel=channel_id,
-            text=(
-                f"*Your request with the following details has been received. Thank you!* \n\n" 
-                f"*Link to the video:* {video_link} \n\n"
-                f"*Additional information:* {additional_info} \n\n"
-                f"*Amount of packages:* {thumbnail_packages} \n\n"
-                f"*Resizes:* {client_info.get('resize', 'None')} \n\n"
+        if is_vip:
+            client.chat_postMessage(
+                channel=channel_id,
+                text=(
+                    f"*Your request with the following details has been received. Thank you!* \n\n" 
+                    f"*Link to the video:* {video_link} \n\n"
+                    f"*Additional information:* {additional_info} \n\n"
+                    f"*Amount of packages:* {thumbnail_packages} \n\n"
+                    f"*Resizes:* {client_info.get('resize', 'None')} \n\n"
+                )
             )
-        )
+        else:
+            client.chat_postEphemeral(
+                channel=channel_id,
+                user=body["user"]["id"],
+                text="\u23F3 Your request is being processed. You'll get the results shortly!"
+            )
+
+            create_task_details(channel_id, task_id, video_link, additional_info, thumbnail_packages)
+            fetch_google_doc_content(video_link)
+        
     else:
         client.chat_postMessage(
             channel=channel_id,
-            text="*Error:* Unable to create a task in Asana. Please try again later."
+            text="*Error:* Seems like we are experiencing some technical issues at the moment. Please try to send your request again later."
         )
