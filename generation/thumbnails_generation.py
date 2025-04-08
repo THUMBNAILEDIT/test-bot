@@ -33,9 +33,9 @@ def format_revision_results(revised_packages):
 
     for key, package in revised_packages.items():
         lines.append(f"*{key.replace('_', ' ').title()}*")
-        lines.append(f"*Prompt used:* {package['prompt']}")
-        lines.append(f"*Original:* {package['original_thumbnail']}")
-        lines.append(f"*Updated:* {package['revised_thumbnail']}")
+        lines.append(f"*Your request:* {package['prompt']}")
+        lines.append(f"*The thumbnail we revised:* {package['original_thumbnail']}")
+        lines.append(f"*The updated thumbnail:* {package['revised_thumbnail']}")
         lines.append("")
 
     lines.append("🎁 FINAL_OUTPUT_END")
