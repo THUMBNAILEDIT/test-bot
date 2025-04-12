@@ -70,6 +70,13 @@ one_time_pricing_table = {
 
 # ========================================================
 
+landing_pricing_table = {
+    6000: 20,  # Light план – 60$
+    10000: 40,  # Basic план – 100$
+}
+
+# ========================================================
+
 def get_plan_from_total(total: int):
     if total in monthly_pricing_table:
         return "monthly"
@@ -246,4 +253,104 @@ def process_monobank_payment_webhook(data):
 
     except Exception as e:
         logging.error("Error in process_monobank_payment_webhook:", e)
+        return {"error": str(e)}, 500
+    
+def get_plan_from_total_landing(total: int):
+    if total in landing_pricing_table:
+        return "landing"
+    return None
+
+# ======================================================== LANDING
+
+def calculate_credits_landing(total: int) -> int:
+    return landing_pricing_table.get(total, 0)
+
+def send_invoice_to_monobank_landing(total, reference):
+    try:
+        monobank_payload = {
+            "amount": int(total * 100),
+            "ccy": 840,
+            "merchantPaymInfo": {
+                "comment": "Landing Plan Purchase",
+                "destination": f"{total}",
+                "reference": reference
+            },
+            "webHookUrl": BACKEND_BASEURL + "monobank/webhook-landing",
+            "redirectUrl": f"{BACKEND_BASEURL}post-payment?reference={reference}",
+            "saveCardData": {
+                "saveCard": True,
+            },
+        }
+        headers = {"X-Token": MONOBANK_API_KEY}
+        response = requests.post(
+            MONOBANK_API_BASEURL + "merchant/invoice/create",
+            json=monobank_payload,
+            headers=headers
+        )
+        if response.status_code == 200:
+            return {"payment_url": response.json().get("pageUrl")}, 200
+        else:
+            return {"error": "Failed to create invoice", "details": response.json()}, response.status_code
+    except Exception as e:
+        return {"error": str(e)}, 500
+    
+# ========================================================
+
+def process_monobank_payment_webhook_landing(data):
+    try:
+        logging.info("Landing webhook data: %s", data)
+
+        payment_status = data.get("status")
+        invoice_id = data.get("invoiceId")
+        reference = data.get("reference", "")
+        total_str = data.get("destination", "")
+
+        if not total_str.isdigit() or not payment_status or not invoice_id or not reference:
+            return {"error": "Invalid webhook data"}, 400
+
+        if payment_status in ["created", "processing"]:
+            logging.info(f"Invoice status: {payment_status}, waiting for final confirmation.")
+            return {"message": f"Invoice status: {payment_status}"}, 200
+
+        if payment_status != "success":
+            return {"error": "Payment not successful"}, 400
+
+        existing = supabase.table("transactions").select("*").eq("invoiceId", invoice_id).execute()
+        if existing.data:
+            logging.info("Landing transaction already processed.")
+            return {"message": "Already processed"}, 200
+
+        total = int(total_str) * 100
+        credits = calculate_credits_landing(total)
+
+        supabase.table("transactions").insert({
+            "invoiceId": invoice_id,
+            "status": "processed",
+            "reference": reference,
+            "amount": total // 100,
+            "credits": credits,
+            "source": "landing"
+        }).execute()
+
+        card_token = data.get("walletData", {}).get("cardToken")
+        now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        amount = total // 100
+
+        client_insert = supabase.table("clientbase").insert({
+            "current_credits": credits,
+            "subscription_amount": amount,
+            "subscription_period": 30,
+            "last_subscription_transaction": now_str,
+            "card_token": card_token,
+            "is_subscription_active": True,
+            "reference": reference
+        }).execute()
+
+        access_token = client_insert.data[0]["access_token"]
+        logging.info("New client created with access_token: %s", access_token)
+
+        return {"access_token": access_token}, 200
+
+    except Exception as e:
+        logging.error("Error in landing webhook: %s", e)
         return {"error": str(e)}, 500

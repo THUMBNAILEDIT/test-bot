@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Redirecting...</title>
+  </head>
+  <body>
+    <p>Redirecting to your profile form...</p>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const reference = params.get("reference");
+
+      if (reference) {
+        fetch(`/api/access-token-from-reference?reference=${reference}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.access_token) {
+              window.location.href = `/complete-profile/${data.access_token}`;
+            } else {
+              document.body.innerHTML =
+                "<p>Payment not found. Try again later.</p>";
+            }
+          })
+          .catch(() => {
+            document.body.innerHTML = "<p>Something went wrong. Try again.</p>";
+          });
+      } else {
+        document.body.innerHTML =
+          "<p>Missing reference. Please start over.</p>";
+      }
+    </script>
+  </body>
+</html>

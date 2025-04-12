@@ -116,3 +116,18 @@ def update_deliverables(data: dict):
         current_deliverables = client.get("deliverables", {}) or {}
         current_deliverables[task_id] = data
         supabase.table("clientbase").update({"deliverables": current_deliverables}).eq("slack_id", channel_id).execute()
+
+# =======================================================
+
+def complete_client_profile(access_token, data: dict):
+    allowed_fields = ["client_name_short", "client_channel_link", "client_email"]
+    update_fields = {k: v for k, v in data.items() if k in allowed_fields}
+
+    if not update_fields:
+        return False
+
+    supabase.table("clientbase").update(update_fields).eq("access_token", access_token).execute()
+    return True
+
+# =======================================================
+
