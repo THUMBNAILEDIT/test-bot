@@ -71,8 +71,8 @@ one_time_pricing_table = {
 # ========================================================
 
 landing_pricing_table = {
-    6000: 20,  # Light план – 60$
-    10000: 40,  # Basic план – 100$
+    6000: 20,
+    10000: 40,
 }
 
 # ========================================================
@@ -255,12 +255,12 @@ def process_monobank_payment_webhook(data):
         logging.error("Error in process_monobank_payment_webhook:", e)
         return {"error": str(e)}, 500
     
+# ======================================================== LANDING
+
 def get_plan_from_total_landing(total: int):
     if total in landing_pricing_table:
         return "landing"
     return None
-
-# ======================================================== LANDING
 
 def calculate_credits_landing(total: int) -> int:
     return landing_pricing_table.get(total, 0)

@@ -5,7 +5,6 @@ import requests
 import logging
 from config.config import MONOBANK_API_BASEURL, MONOBANK_API_KEY
 
-
 # ========================================================
 
 def fetch_public_key():
