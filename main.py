@@ -1,5 +1,5 @@
 import logging
-from flask import Flask, request, jsonify, render_template, make_response
+from flask import Flask, request, jsonify, render_template
 from payment.validate_webhook_request import validate_request
 from communication.webhooks import handler, asana_webhook
 from communication.commands import app
@@ -8,20 +8,14 @@ from payment.purchase_handler import process_monobank_payment_webhook, verify_ac
 from database.database import supabase, complete_client_profile
 from flask_cors import CORS, cross_origin
 
-# ========================================================
-
 flask_app = Flask(__name__, template_folder="payment/templates", static_folder="payment/static")
-# CORS(flask_app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 CORS(flask_app)
 handler = SlackRequestHandler(app)
-
-# ========================================================
 
 @flask_app.route("/slack/events", methods=["GET", "POST"])
 def slack_events():
     try:
         if request.method == "GET":
-            # logging.info("GET request received at /slack/events")
             return "Endpoint verified", 200
 
         if request.method == "POST":
@@ -32,19 +26,13 @@ def slack_events():
 
         return jsonify({"error": "Invalid request format", "message": str(e)}), 400
 
-# ========================================================
-
 @flask_app.route("/slack/commands", methods=["POST"])
 def slack_commands():
     return handler.handle(request)
 
-# ========================================================
-
 @flask_app.route("/asana-webhook", methods=["POST"])
 def asana_webhook_route():
     return asana_webhook()
-
-# ========================================================
 
 @flask_app.route("/pricing/<access_token>")
 def pricing_page(access_token):
@@ -59,8 +47,6 @@ def pricing_page(access_token):
 
     return render_template("pricing.html", access_token=access_token, is_subscription_active="true" if is_subscription_active else "false")
 
-# ========================================================
-
 @flask_app.route("/api/create-invoice", methods=["POST"])
 def create_invoice():
     data = request.get_json()
@@ -72,8 +58,6 @@ def create_invoice():
 
     response, status_code = send_invoice_to_monobank(total, access_token)
     return jsonify(response), status_code
-
-# ========================================================
 
 @flask_app.route("/monobank/webhook", methods=["POST", "GET"])
 def monobank_webhook():
@@ -93,8 +77,6 @@ def monobank_webhook():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# ======================================================== LANDING
-
 @flask_app.route("/api/create-invoice-landing", methods=["POST", "OPTIONS"])
 @cross_origin()
 def create_invoice_landing():
@@ -110,8 +92,6 @@ def create_invoice_landing():
 
     response, status_code = send_invoice_to_monobank_landing(total, reference)
     return jsonify(response), status_code
-
-# =============================================================
 
 @flask_app.route("/monobank/webhook-landing", methods=["POST", "OPTIONS"])
 @cross_origin()
@@ -131,8 +111,6 @@ def monobank_webhook_landing():
     else:
         return jsonify({"error": "Invalid signature"}), 400
     
-# =============================================================
-
 @flask_app.route("/api/access-token-from-reference")
 def access_token_from_reference():
     reference = request.args.get("reference")
@@ -147,8 +125,6 @@ def access_token_from_reference():
 @flask_app.route("/complete-profile/<access_token>")
 def complete_profile_page(access_token):
     return render_template("complete-profile.html", access_token=access_token)
-
-# =============================================================
 
 @flask_app.route("/api/complete-profile", methods=["POST"])
 def complete_profile():
@@ -165,13 +141,9 @@ def complete_profile():
     else:
         return jsonify({"error": "No valid fields to update"}), 400
     
-# =============================================================
-
 @flask_app.route("/post-payment")
 def post_payment():
     return render_template("post_payment.html")
-
-# =============================================================
 
 if __name__ == "__main__":
     flask_app.run(debug=True, host="0.0.0.0", port=5000)

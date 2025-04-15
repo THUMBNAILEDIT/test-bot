@@ -4,14 +4,10 @@ import logging
 from datetime import datetime, timezone
 from config.config import YOUTUBE_DATA_API_KEY
 
-# ========================================================
-
 logging.basicConfig(level=logging.INFO)
 
 YOUTUBE_SEARCH_URL = 'https://www.googleapis.com/youtube/v3/search'
 YOUTUBE_VIDEOS_URL = 'https://www.googleapis.com/youtube/v3/videos'
-
-# ========================================================
 
 def parse_duration(duration_str):
     pattern = re.compile(
@@ -34,8 +30,6 @@ def parse_duration(duration_str):
     minutes = int(parts.get("minutes") or 0)
     seconds = int(parts.get("seconds") or 0)
     return days * 86400 + hours * 3600 + minutes * 60 + seconds
-
-# ========================================================
 
 def youtube_search(video_query):
     target_count = 20

@@ -11,8 +11,6 @@ from database.database import update_deliverables
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# ========================================================
-
 def format_final_deliverables(final_deliverables):
     lines = ["🎁 FINAL_OUTPUT_START"]
 
@@ -26,8 +24,6 @@ def format_final_deliverables(final_deliverables):
     lines.append("🎁 FINAL_OUTPUT_END")
     return "\n".join(lines)
 
-# ========================================================
-
 def format_revision_results(revised_packages):
     lines = ["🎁 FINAL_OUTPUT_START", "*🔁 Revised Thumbnails:*", ""]
 
@@ -40,8 +36,6 @@ def format_revision_results(revised_packages):
 
     lines.append("🎁 FINAL_OUTPUT_END")
     return "\n".join(lines)
-
-# ========================================================
 
 def thumbnail_generation(thumbnail_instruction):
     thumbnail_packages = int(get_task_details("thumbnail_packages"))
@@ -79,8 +73,6 @@ def thumbnail_generation(thumbnail_instruction):
             }
 
         add_to_task_details("final_deliverables", final_deliverables)
-        # add_to_task_details("final_deliverables", json.dumps(final_deliverables, indent=4, ensure_ascii=False))
-
         delete_from_task_details("video_script")
         delete_from_task_details("additional_info")
         delete_from_task_details("video_context")
@@ -101,8 +93,6 @@ def thumbnail_generation(thumbnail_instruction):
     except Exception as e:
         logging.error("Error in thumbnail generation: %s", e)
         return []
-    
-# ========================================================
 
 def thumbnail_revision(task_id, user_message, full_data):
     try:

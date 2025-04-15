@@ -8,8 +8,6 @@ from research.youtube_filter import youtube_filter
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# ========================================================
-
 def get_video_context(video_script, additional_info):
     prompt = (
         "Analyze the following information and provide a concise summary preserving key points.\n\n"
@@ -31,9 +29,6 @@ def get_video_context(video_script, additional_info):
         
         video_context = response.choices[0].message.content.strip()
 
-        # pretty_details = json.dumps(video_context, indent=4, ensure_ascii=False)
-        # logging.info(pretty_details)
-
         add_to_task_details("video_context", video_context)
 
         return video_context
@@ -42,8 +37,6 @@ def get_video_context(video_script, additional_info):
         logging.error("Error during ChatGPT API call: %s", e)
         return None
     
-# ========================================================
-
 def create_video_description (video_script, additional_info):
     prompt = (
         "Analyze the following information and create an moderately-sized engaging description for a YouTube video based on it.\n\n"
@@ -65,9 +58,6 @@ def create_video_description (video_script, additional_info):
         
         video_description = response.choices[0].message.content.strip()
 
-        # pretty_details = json.dumps(video_description, indent=4, ensure_ascii=False)
-        # logging.info(pretty_details)
-
         add_to_task_details("video_description", video_description)
 
         return video_description
@@ -75,8 +65,6 @@ def create_video_description (video_script, additional_info):
     except Exception as e:
         logging.error("Error during ChatGPT API call: %s", e)
         return None
-
-# ========================================================
 
 def get_video_query(video_script, additional_info):
     prompt = (
@@ -107,9 +95,6 @@ def get_video_query(video_script, additional_info):
         
         video_queries_str = video_queries_str.strip()
         video_queries = json.loads(video_queries_str)
-
-        # pretty_details = json.dumps(video_queries, indent=4, ensure_ascii=False)
-        # logging.info(pretty_details)
         
         add_to_task_details("video_queries", video_queries)
         

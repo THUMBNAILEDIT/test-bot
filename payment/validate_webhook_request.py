@@ -5,8 +5,6 @@ import requests
 import logging
 from config.config import MONOBANK_API_BASEURL, MONOBANK_API_KEY
 
-# ========================================================
-
 def fetch_public_key():
     url = MONOBANK_API_BASEURL+"merchant/pubkey"
     headers = {
@@ -17,8 +15,6 @@ def fetch_public_key():
         return response.json().get("key")
     else:
         raise Exception(f"Failed to fetch public key: {response.status_code} - {response.text}")
-
-# ========================================================
 
 def validate_request(x_sign_base64, body_bytes):
     try:

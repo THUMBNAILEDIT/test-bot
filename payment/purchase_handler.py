@@ -6,8 +6,6 @@ from config.config import MONOBANK_API_BASEURL, BACKEND_BASEURL, MONOBANK_API_KE
 from communication.commands import app as slack_app
 from database.database import supabase, activate_client_subscription
 
-# ========================================================
-
 monthly_pricing_table = {
     100: 2, 148: 3, 194: 4, 239: 5, 283: 6, 325: 7, 366: 8, 405: 9,
     443: 10, 479: 11, 514: 12, 548: 13, 580: 14, 611: 15, 640: 16, 668: 17,
@@ -28,8 +26,6 @@ monthly_pricing_table = {
     5400: 180, 5520: 184, 5640: 188, 5760: 192, 5880: 196, 6000: 200, 6120: 204, 6240: 208,
     6360: 212, 6480: 216, 6600: 220, 6720: 224, 6840: 228, 6960: 232, 7080: 236, 7200: 240,
 }
-
-# ========================================================
 
 annual_pricing_table = {
     1080: 2, 1596: 3, 2100: 4, 2580: 5, 3060: 6, 3516: 7, 3948: 8, 4380: 9,
@@ -53,8 +49,6 @@ annual_pricing_table = {
     69984: 216, 71280: 220, 72576: 224, 73872: 228, 75168: 232, 76464: 236, 77760: 240,
 }
 
-# ========================================================
-
 one_time_pricing_table = {
     60: 1,
     118: 2,
@@ -68,14 +62,10 @@ one_time_pricing_table = {
     500: 10,
 }
 
-# ========================================================
-
 landing_pricing_table = {
     6000: 20,
     10000: 40,
 }
-
-# ========================================================
 
 def get_plan_from_total(total: int):
     if total in monthly_pricing_table:
@@ -86,8 +76,6 @@ def get_plan_from_total(total: int):
         return "onetime"
     return None
 
-# ========================================================
-
 def calculate_credits(plan: str, total: int) -> int:
     if plan == "monthly":
         return monthly_pricing_table.get(total, 0)
@@ -96,8 +84,6 @@ def calculate_credits(plan: str, total: int) -> int:
     elif plan == "onetime":
         return one_time_pricing_table.get(total, 0)
     return 0
-
-# ========================================================
 
 def verify_access_token(access_token):
     if not access_token:
@@ -108,8 +94,6 @@ def verify_access_token(access_token):
         return {"error": f"AccessToken '{access_token}' not found"}, 403
 
     return {"message": "AccessToken is valid"}, 200
-
-# ========================================================
 
 def send_invoice_to_monobank(total, access_token):
     try:
@@ -136,8 +120,6 @@ def send_invoice_to_monobank(total, access_token):
     except Exception as e:
         return {"error": str(e)}, 500
 
-# ========================================================
-
 def load_card_token(invoice_id):
     try:
         response = requests.get(f"{MONOBANK_API_BASEURL}merchant/invoice/status?invoiceId={invoice_id}",
@@ -151,8 +133,6 @@ def load_card_token(invoice_id):
     except Exception as e:
         logging.error(f"Error loading card token: {e}")
         return None
-
-# ========================================================
 
 def update_payment_info(data):
     total_str = data.get("destination", "")
@@ -182,8 +162,6 @@ def update_payment_info(data):
             new_payment_info["card_token"] = card_token
 
         supabase.table("clientbase").update(new_payment_info).eq("access_token", access_token).execute()
-
-# ========================================================
 
 def process_monobank_payment_webhook(data):
     try:
@@ -255,8 +233,6 @@ def process_monobank_payment_webhook(data):
         logging.error("Error in process_monobank_payment_webhook:", e)
         return {"error": str(e)}, 500
     
-# ======================================================== LANDING
-
 def get_plan_from_total_landing(total: int):
     if total in landing_pricing_table:
         return "landing"
@@ -294,8 +270,6 @@ def send_invoice_to_monobank_landing(total, reference):
     except Exception as e:
         return {"error": str(e)}, 500
     
-# ========================================================
-
 def process_monobank_payment_webhook_landing(data):
     try:
         logging.info("Landing webhook data: %s", data)

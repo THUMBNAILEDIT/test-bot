@@ -6,14 +6,10 @@ from config.config import OPENAI_API_KEY, AZURE_VISION_KEY, AZURE_VISION_ENDPOIN
 from communication.task_details import get_task_details, add_to_task_details
 from generation.thumbnails_generation import thumbnail_generation
 
-# ========================================================
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 client = OpenAI(api_key=OPENAI_API_KEY)
-
-# ========================================================
 
 def titles_analysis(filtered_videos):
     titles = [video["title"] for video in filtered_videos]
@@ -63,15 +59,11 @@ def titles_analysis(filtered_videos):
         generated_titles = cleaned_titles
         add_to_task_details("generated_titles", generated_titles)
 
-        # logging.info(json.dumps(generated__titles, indent=4, ensure_ascii=False))
-
         return generated_titles
     
     except Exception as e:
         logging.error("Error during ChatGPT API call for title generation: %s", e)
         return None
-
-# ========================================================
 
 def thumbnails_analysis(filtered_videos):
     api_version = "2024-02-01"
@@ -90,8 +82,7 @@ def thumbnails_analysis(filtered_videos):
     }
     
     thumbnails = [video["thumbnail"] for video in filtered_videos]
-    # logging.info(json.dumps(thumbnails, indent=4, ensure_ascii=False))
-    
+
     descriptions = []
     
     for image_url in thumbnails:
@@ -118,10 +109,7 @@ def thumbnails_analysis(filtered_videos):
         except Exception as e:
             logging.error("Unexpected error for %s: %s", image_url, e)
     
-    # logging.info(json.dumps(descriptions, indent=4, ensure_ascii=False))
-
     video_context = get_task_details("video_context")
-    # thumbnail_packages = get_task_details("thumbnail_packages")
 
     try:
         prompt = (
@@ -144,7 +132,6 @@ def thumbnails_analysis(filtered_videos):
         )
         
         thumbnail_instruction = chat_response.choices[0].message.content.strip()
-        # logging.info("Generated Instruction Prompt: %s", thumbnail_instruction)
     except Exception as e:
         logging.error("Error generating image preview instruction: %s", e)
 

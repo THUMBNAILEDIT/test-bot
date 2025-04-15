@@ -8,8 +8,6 @@ from .commands import app
 from config.config import ASANA_ADMIN_ID
 from generation.thumbnails_generation import thumbnail_revision
 from database.database import get_deliverables_by_task_id
-
-
 from database.database import (
     fetch_client_data,
     fetch_client_data_by_task_id,
@@ -19,15 +17,9 @@ from database.database import (
     update_task_history
 )
 
-# ========================================================
-
 handler = SlackRequestHandler(app)
 
-# ========================================================
-
 GREETING_MESSAGE = "Hi {name}, the deliverables for your video are ready, please take a look!"
-
-# ========================================================
 
 def split_text_to_blocks(text, chunk_size=3000):
     blocks = []
@@ -48,8 +40,6 @@ def split_text_to_blocks(text, chunk_size=3000):
         })
 
     return blocks
-
-# ========================================================
 
 def asana_webhook():
     if "X-Hook-Secret" in request.headers:
@@ -73,18 +63,11 @@ def asana_webhook():
                 comment_text = comment_data.get("text", "")
                 comment_author_id = comment_data.get("created_by", {}).get("gid")
 
-                # ==========
-
                 if comment_author_id == ASANA_ADMIN_ID and "FINAL_OUTPUT_START" not in comment_text:
                     continue
 
-                # if comment_author_id == ASANA_ADMIN_ID:
-                #     continue
-
                 if "FINAL_OUTPUT_START" in comment_text:
                     comment_text = comment_text.replace("🎁 FINAL_OUTPUT_START", "").replace("🎁 FINAL_OUTPUT_END", "").strip()
-
-                # ===========
 
                 client_info = fetch_client_data_by_task_id(task_id)
                 if not client_info:
@@ -100,19 +83,6 @@ def asana_webhook():
                     response = app.client.chat_postMessage(
                             channel=client_info["slack_id"],
                         text=f"*{greeting}* \n\n{comment_text}",
-                        # blocks=[
-                        #     {
-                        #         "type": "section",
-                        #         "text": {"type": "mrkdwn", "text": f"*{greeting}* \n\n{comment_text}"},
-                        #     },
-                        #     {
-                        #         "type": "actions",
-                        #         "elements": [
-                        #             {"type": "button", "text": {"type": "plain_text", "text": "Approve"}, "action_id": "accept_work", "value": str(task_id)},
-                        #             {"type": "button", "text": {"type": "plain_text", "text": "Request Revisions"}, "action_id": "request_revisions"},
-                        #         ],
-                        #     },
-                        # ],
                         blocks=[
                             {
                                 "type": "section",
@@ -137,19 +107,6 @@ def asana_webhook():
                         channel=client_info["slack_id"],
                         text=comment_text,
                         thread_ts=thread_ts,
-                        # blocks=[
-                        #     {
-                        #         "type": "section",
-                        #         "text": {"type": "mrkdwn", "text": comment_text},
-                        #     },
-                        #     {
-                        #         "type": "actions",
-                        #         "elements": [
-                        #             {"type": "button", "text": {"type": "plain_text", "text": "Approve"}, "action_id": "accept_work", "value": str(task_id)},
-                        #             {"type": "button", "text": {"type": "plain_text", "text": "Request Revisions"}, "action_id": "request_revisions"},
-                        #         ],
-                        #     },
-                        # ],
                         blocks=[
                             *split_text_to_blocks(comment_text),
                             {
@@ -167,8 +124,6 @@ def asana_webhook():
         return jsonify({"status": "success"}), 200
 
     return jsonify({"status": "failure"}), 400
-
-# ========================================================
 
 @app.action("accept_work")
 def handle_accept_work(ack, body, client):
@@ -220,8 +175,6 @@ def handle_accept_work(ack, body, client):
     else:
         logging.error("Client information not found.")
 
-# ========================================================
-
 @app.action("request_revisions")
 def handle_request_revisions(ack, body, client):
     ack()
@@ -233,7 +186,6 @@ def handle_request_revisions(ack, body, client):
     client_info = fetch_client_data(channel_id)
     if client_info:
         thread_ts = message_ts
-        # task_id = client_info.get("thread_mappings", {}).get(thread_ts)
         task_id = body.get("actions")[0].get("value")
 
         if not task_id:
@@ -290,8 +242,6 @@ def handle_request_revisions(ack, body, client):
     else:
         logging.error("Client information not found.")
 
-# ========================================================
-
 @app.event("message")
 def handle_thread_messages(event, say, client):
     if "thread_ts" in event and not event.get("bot_id"):
@@ -318,9 +268,6 @@ def handle_thread_messages(event, say, client):
                     name="eyes",
                     timestamp=event["ts"]
                 )
-
-                # if not client_info.get("is_client_vip", False):
-                #     thumbnail_revision(task_id, user_message)
 
                 if not client_info.get("is_client_vip", False):
                     full_data = get_deliverables_by_task_id(channel_id, task_id)

@@ -1,10 +1,8 @@
-import json
 from flask import Flask
 from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
 from config.config import SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET, BACKEND_BASEURL
 from context.document_retrieval import fetch_google_doc_content
-from communication.task_details import get_task_details
 from .asana_utils import create_asana_task, register_webhook_for_task
 from .task_details import create_task_details
 from database.database import (
@@ -14,14 +12,10 @@ from database.database import (
     get_access_token
 )
 
-# ========================================================
-
 app = App(token=SLACK_BOT_TOKEN, signing_secret=SLACK_SIGNING_SECRET)
 
 flask_app = Flask(__name__)
 handler = SlackRequestHandler(app)
-
-# ========================================================
 
 @app.command("/request")
 def handle_request(ack, body, client):
@@ -77,8 +71,6 @@ def handle_request(ack, body, client):
 
     client.views_open(trigger_id=body["trigger_id"], view=modal_view)
 
-# ========================================================
-
 @app.command("/balance")
 def handle_balance(ack, command):
     ack()
@@ -107,8 +99,6 @@ def handle_balance(ack, command):
             channel=channel_id,
             text="*Error:* We couldn't find your client info. Please ensure your Slack channel is registered.\n\n"
         )
-
-# ========================================================
 
 @app.view("request_modal_submission")
 def handle_modal_submission(ack, body, client):
