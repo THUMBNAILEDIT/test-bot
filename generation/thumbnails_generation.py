@@ -37,6 +37,15 @@ def format_revision_results(revised_packages):
     lines.append("🎁 FINAL_OUTPUT_END")
     return "\n".join(lines)
 
+
+
+
+
+
+
+
+# =================👇 Это функция, в которой мы генерируем превью на основе инструкции ==================
+
 def thumbnail_generation(thumbnail_instruction):
     thumbnail_packages = int(get_task_details("thumbnail_packages"))
 
@@ -84,15 +93,24 @@ def thumbnail_generation(thumbnail_instruction):
         logging.info(json.dumps(get_task_details(), indent=4, ensure_ascii=False))
         update_deliverables(get_task_details())
 
-        task_id = get_task_details("task_id")
-        comment_text = format_final_deliverables(final_deliverables)
-        post_comment_to_task(task_id, comment_text)
+        # task_id = get_task_details("task_id")
+        # comment_text = format_final_deliverables(final_deliverables)
+        # post_comment_to_task(task_id, comment_text)
 
         return final_deliverables
     
     except Exception as e:
         logging.error("Error in thumbnail generation: %s", e)
         return []
+
+
+
+
+
+
+
+
+# =================👇 Это функция, в которой мы правим превью на основе запроса клиента (пока не трогай вообще) ==================
 
 def thumbnail_revision(task_id, user_message, full_data):
     try:

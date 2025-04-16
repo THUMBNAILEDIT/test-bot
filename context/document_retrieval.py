@@ -50,10 +50,9 @@ def fetch_google_doc_content(video_link):
                     video_script += el['textRun']['content']
 
     add_to_task_details("video_script", video_script)
-    additional_info = get_task_details("additional_info")
 
-    get_video_context(video_script, additional_info)
-    create_video_description(video_script, additional_info)
-    get_video_query(video_script, additional_info)
+    get_video_context(video_script)
+    create_video_description(video_script)
+    get_video_query(video_script)
 
     return video_script
