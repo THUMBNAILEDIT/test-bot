@@ -108,6 +108,8 @@ def titles_analysis(filtered_videos):
 # =================👇 Это функция, в которой мы анализируем превью 10-ти отобранных видео ==================
 
 def thumbnails_analysis(filtered_videos):
+    client_wishes = get_task_details("additional_info")
+
     api_version = "2024-02-01"
     features = "denseCaptions"
     analyze_url = f"{AZURE_VISION_ENDPOINT.rstrip('/')}/computervision/imageanalysis:analyze"
@@ -176,10 +178,11 @@ def thumbnails_analysis(filtered_videos):
 # =======================================================================================
 
         generation_prompt = (
-            "Based on the following analysis of 10 successful YouTube thumbnails and the provided video context, "
+            "Based on the following analysis of 10 successful YouTube thumbnails, the provided video context and the client's wishes, "
             "generate a short and precise prompt for an AI image generator. "
             "The goal is to create a high-performing thumbnail that visually fits the niche and reflects the video's idea clearly.\n\n"
             f"Thumbnail Analysis:\n{visual_summary}\n\n"
+            f"Client's wishes:\n{client_wishes}\n\n"
             f"Video Context:\n{video_context}"
         )
 
