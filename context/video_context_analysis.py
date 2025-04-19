@@ -19,14 +19,16 @@ def get_video_context(video_script):
     
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.5,
-            max_tokens=150
+            max_tokens=500
         )
+
+        logging.info(f"Raw response: {response}")
         
         video_context = response.choices[0].message.content.strip()
 
@@ -58,13 +60,13 @@ def get_video_query(video_script):
     
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="o4-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.5,
-            max_tokens=150
+            temperature=1,
+            max_completion_tokens=1000
         )
         
         video_queries_str = response.choices[0].message.content.strip()

@@ -24,13 +24,13 @@ def titles_analysis(filtered_videos):
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="o4-mini",
             messages=[
                 {"role": "system", "content": "You are a highly analytical assistant."},
                 {"role": "user", "content": analysis_prompt}
             ],
-            temperature=0.4,
-            max_tokens=1000
+            temperature=1,
+            max_completion_tokens=1000
         )
 
         raw_response = response.choices[0].message.content.strip()
@@ -57,13 +57,13 @@ def titles_analysis(filtered_videos):
             )
 
             title_response = client.chat.completions.create(
-                model="gpt-4o",
+                model="o4-mini",
                 messages=[
                     {"role": "system", "content": "You write compelling YouTube titles."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.6,
-                max_tokens=50
+                temperature=1,
+                max_completion_tokens=500
             )
 
             generated_titles.append(title_response.choices[0].message.content.strip())
@@ -78,13 +78,13 @@ def titles_analysis(filtered_videos):
             )
 
             desc_response = client.chat.completions.create(
-                model="gpt-4o",
+                model="o4-mini",
                 messages=[
                     {"role": "system", "content": "You write effective YouTube descriptions."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.6,
-                max_tokens=100
+                temperature=1,
+                max_completion_tokens=1000
             )
 
             description = desc_response.choices[0].message.content.strip()
@@ -144,13 +144,13 @@ def thumbnails_analysis(filtered_videos):
         )
 
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="o4-mini",
             messages=[
                 {"role": "system", "content": "You are an expert in visual pattern recognition for YouTube thumbnails."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.4,
-            max_tokens=1000
+            temperature=1,
+            max_completion_tokens=2000
         )
 
         raw_response = response.choices[0].message.content.strip()
@@ -177,13 +177,13 @@ def thumbnails_analysis(filtered_videos):
             )
 
             instr_response = client.chat.completions.create(
-                model="gpt-4o",
+                model="o4-mini",
                 messages=[
                     {"role": "system", "content": "You generate precise prompts for AI-based thumbnail generation."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.5,
-                max_tokens=200
+                temperature=1,
+                max_completion_tokens=2000
             )
 
             thumbnails_instructions.append(instr_response.choices[0].message.content.strip())
