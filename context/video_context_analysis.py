@@ -8,13 +8,6 @@ from research.youtube_filter import youtube_filter
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-
-
-
-
-
-
-
 # =================👇 Это функция, в которой мы генерируем контекст видео на основе сценария ==================
 
 def get_video_context(video_script):
@@ -37,9 +30,11 @@ def get_video_context(video_script):
         
         video_context = response.choices[0].message.content.strip()
 
-# ======================================================================================= Тут мы выводим результат в терминал
+        logging.info("")
+        logging.info("")
         logging.info(f"Video context:\n{json.dumps(video_context, indent=4, ensure_ascii=False)}")
-# =======================================================================================
+        logging.info("")
+        logging.info("")
 
 
         add_to_task_details("video_context", video_context)
@@ -49,54 +44,6 @@ def get_video_context(video_script):
     except Exception as e:
         logging.error("Error during ChatGPT API call: %s", e)
         return None
-    
-
-
-
-
-
-
-
-# =================👇 Это функция, в которой мы генерируем описание видео на основе сценария ==================
-
-def create_video_description (video_script):
-    prompt = (
-        "Analyze the following information and create an moderately-sized engaging description for a YouTube video based on it.\n\n"
-        "Video Script:\n" + video_script + "\n\n"
-        "Summary:"
-    )
-    
-    try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.5,
-            max_tokens=150
-        )
-        
-        video_description = response.choices[0].message.content.strip()
-
-# ======================================================================================= Тут мы выводим результат в терминал
-        logging.info(f"Video description:\n{json.dumps(video_description, indent=4, ensure_ascii=False)}")
-# =======================================================================================
-
-        add_to_task_details("video_description", video_description)
-
-        return video_description
-    
-    except Exception as e:
-        logging.error("Error during ChatGPT API call: %s", e)
-        return None
-
-
-
-
-
-
-
 
 # =================👇 Это функция, в которой мы генерируем запросы на релевантные видео на основе сценария ==================
 
@@ -129,9 +76,11 @@ def get_video_query(video_script):
         video_queries_str = video_queries_str.strip()
         video_queries = json.loads(video_queries_str)
 
-# ======================================================================================= Тут мы выводим результат в терминал
+        logging.info("")
+        logging.info("")
         logging.info(f"Video queries:\n{json.dumps(video_queries, indent=4, ensure_ascii=False)}")
-# =======================================================================================
+        logging.info("")
+        logging.info("")
         
         add_to_task_details("video_queries", video_queries)
         

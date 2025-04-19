@@ -1,9 +1,9 @@
 import re
 import requests
 import logging
-from communication.task_details import get_task_details, add_to_task_details
+from communication.task_details import add_to_task_details
 from config.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GOOGLE_TOKEN_URI
-from context.video_context_analysis import get_video_context, create_video_description, get_video_query
+from context.video_context_analysis import get_video_context, get_video_query
 
 logging.basicConfig(level=logging.INFO)
 
@@ -52,7 +52,6 @@ def fetch_google_doc_content(video_link):
     add_to_task_details("video_script", video_script)
 
     get_video_context(video_script)
-    create_video_description(video_script)
     get_video_query(video_script)
 
     return video_script

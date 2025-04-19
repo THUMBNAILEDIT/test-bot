@@ -37,51 +37,34 @@ def format_revision_results(revised_packages):
     lines.append("🎁 FINAL_OUTPUT_END")
     return "\n".join(lines)
 
-
-
-
-
-
-
-
-# =================👇 Это функция, в которой мы генерируем превью на основе инструкции ==================
-
-def thumbnail_generation(thumbnail_instruction):
+def thumbnail_generation(thumbnails_instructions):
     thumbnail_packages = int(get_task_details("thumbnail_packages"))
 
-    generated_titles_raw = get_task_details("generated_titles")
-    generated_titles = json.loads(generated_titles_raw) if isinstance(generated_titles_raw, str) else generated_titles
-
-    video_description = get_task_details("video_description")
+    final_deliverables = get_task_details("final_deliverables")
     generated_thumbnails = []
 
     try:
-        input_data = {
-            "prompt": thumbnail_instruction,
-            "prompt_upsampling": True,
-            "width": 1280,
-            "height": 720,
-            "output_quality": 80,
-            "output_format": "jpg",
-            "aspect_ratio": "custom",
-            "safety_tolerance": 4
-        }
-
-        for _ in range(thumbnail_packages):
-            output = replicate.run("black-forest-labs/flux-1.1-pro", input=input_data)
-            
-            image_url = str(output[0]) if isinstance(output, list) else str(output)
-            generated_thumbnails.append(image_url)
-            
-        final_deliverables = {}
-        for i in range(thumbnail_packages):
-            final_deliverables[f"package_{i+1}"] = {
-                "video_title": generated_titles[i],
-                "video_description": video_description,
-                "video_thumbnail": generated_thumbnails[i]
+        for instruction in thumbnails_instructions:
+            input_data = {
+                "prompt": instruction,
+                "prompt_upsampling": True,
+                "width": 1280,
+                "height": 720,
+                "output_quality": 80,
+                "output_format": "jpg",
+                "aspect_ratio": "custom",
+                "safety_tolerance": 4
             }
 
+            output = replicate.run("black-forest-labs/flux-1.1-pro", input=input_data)
+            image_url = str(output[0]) if isinstance(output, list) else str(output)
+            generated_thumbnails.append(image_url)
+
+        for i in range(thumbnail_packages):
+            final_deliverables[i]["video_thumbnail"] = generated_thumbnails[i]
+
         add_to_task_details("final_deliverables", final_deliverables)
+
         delete_from_task_details("video_script")
         delete_from_task_details("additional_info")
         delete_from_task_details("video_context")
@@ -89,19 +72,30 @@ def thumbnail_generation(thumbnail_instruction):
         delete_from_task_details("thumbnail_packages")
         delete_from_task_details("video_queries")
         delete_from_task_details("generated_titles")
+        delete_from_task_details("thumbnails_instructions")
 
+        logging.info("")
+        logging.info("")
         logging.info(json.dumps(get_task_details(), indent=4, ensure_ascii=False))
-        update_deliverables(get_task_details())
+        logging.info("")
+        logging.info("")
+
+        # update_deliverables(get_task_details())
 
         # task_id = get_task_details("task_id")
         # comment_text = format_final_deliverables(final_deliverables)
         # post_comment_to_task(task_id, comment_text)
 
         return final_deliverables
-    
+
     except Exception as e:
         logging.error("Error in thumbnail generation: %s", e)
         return []
+
+
+
+
+
 
 
 
