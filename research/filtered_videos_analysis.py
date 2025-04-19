@@ -30,7 +30,7 @@ def titles_analysis(filtered_videos):
                 {"role": "user", "content": analysis_prompt}
             ],
             temperature=1,
-            max_completion_tokens=1000
+            max_completion_tokens=5000
         )
 
         raw_response = response.choices[0].message.content.strip()
@@ -63,7 +63,7 @@ def titles_analysis(filtered_videos):
                     {"role": "user", "content": prompt}
                 ],
                 temperature=1,
-                max_completion_tokens=500
+                max_completion_tokens=5000
             )
 
             generated_titles.append(title_response.choices[0].message.content.strip())
@@ -84,7 +84,7 @@ def titles_analysis(filtered_videos):
                     {"role": "user", "content": prompt}
                 ],
                 temperature=1,
-                max_completion_tokens=1000
+                max_completion_tokens=5000
             )
 
             description = desc_response.choices[0].message.content.strip()
@@ -150,7 +150,7 @@ def thumbnails_analysis(filtered_videos):
                 {"role": "user", "content": prompt}
             ],
             temperature=1,
-            max_completion_tokens=2000
+            max_completion_tokens=5000
         )
 
         raw_response = response.choices[0].message.content.strip()
@@ -183,7 +183,7 @@ def thumbnails_analysis(filtered_videos):
                     {"role": "user", "content": prompt}
                 ],
                 temperature=1,
-                max_completion_tokens=2000
+                max_completion_tokens=5000
             )
 
             thumbnails_instructions.append(instr_response.choices[0].message.content.strip())

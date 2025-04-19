@@ -27,9 +27,7 @@ def get_video_context(video_script):
             temperature=0.5,
             max_tokens=500
         )
-
-        logging.info(f"Raw response: {response}")
-        
+                
         video_context = response.choices[0].message.content.strip()
 
         logging.info("")
