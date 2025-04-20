@@ -12,7 +12,14 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 def get_video_context(video_script):
     prompt = (
-        "Analyze the following information and provide a concise summary preserving key points.\n\n"
+        "You are a senior YouTube growth strategist. Summarize the script below in no more than 400 words, preserving all details that influence "
+        "thumbnail, title and description performance.\n\n"
+        "Use this exact structure:\n"
+        "Hook:\n"
+        "Main premise:\n"
+        "Key moments:\n"
+        "Viewer takeaway:\n"
+        "Top keywords:\n\n"
         "Video Script:\n" + video_script + "\n\n"
         "Summary:"
     )
@@ -49,11 +56,11 @@ def get_video_context(video_script):
 
 def get_video_query(video_script):
     prompt = (
-        "Analyze the following information and generate five accurate word or short phrase search queries that you would use "
-        "to search for very similar and relevant videos on YouTube. Return the five queries as a JSON array. Each query should "
-        "be concise and relevant to the content.\n\n"
+        "You are a YouTube SEO analyst. From the script below, extract 5 concise search phrases (2–5 words) that viewers would type to find similar "
+        "content. Each phrase must be broad enough to return at least one million results yet laser‑focused on the topic. "
+        "Return ONLY a JSON array of strings.\n\n"
         "Video Script:\n" + video_script + "\n\n"
-        "JSON Array of 5 Queries:"
+        "JSON Array:"
     )
     
     try:

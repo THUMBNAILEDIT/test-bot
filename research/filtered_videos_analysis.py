@@ -17,8 +17,10 @@ def titles_analysis(filtered_videos):
     thumbnail_packages = get_task_details("thumbnail_packages")
 
     analysis_prompt = (
-        "Analyze the following 10 YouTube video titles. Identify distinct stylistic patterns among them, such as tone, emotion, structure, or repeated phrases. "
-        f"Group the titles into exactly {thumbnail_packages} distinct title patterns. Return a JSON array of objects, each containing a 'title_pattern' key with a concise description of the pattern. Do not include any other formatting.\n\n"
+        "You are a conversion copywriter specializing in viral YouTube titles. Study the 10 titles below and cluster them into exactly "
+        f"{thumbnail_packages} distinct patterns based on shared linguistic or psychological hooks (e.g., curiosity‑gap, listicle, shock‑value, how‑to). "
+        "For each pattern output an object {\"title_pattern\": \"<concise pattern description>\"} (max 12 words). "
+        "Return the JSON array only.\n\n"
         "Video Titles:\n" + "\n".join(titles)
     )
 
@@ -50,10 +52,11 @@ def titles_analysis(filtered_videos):
         generated_titles = []
         for pattern in title_patterns:
             prompt = (
-                "Based on the following title pattern and video context, generate 1 engaging YouTube title.\n\n"
-                f"Title Pattern:\n{pattern['title_pattern']}\n\n"
-                f"Video Context:\n{video_context}\n\n"
-                "Return only the title as plain text."
+                "You are a seasoned YouTube headline writer. Using the pattern below and the video context, craft ONE YouTube title ≤55 characters "
+                "that maximizes curiosity and includes at least one high‑intent keyword from the context. Avoid clickbait clichés, keep sentence case. "
+                "Return only the title.\n\n"
+                f"Pattern:\n{pattern['title_pattern']}\n\n"
+                f"Context:\n{video_context}"
             )
 
             title_response = client.chat.completions.create(
@@ -71,10 +74,14 @@ def titles_analysis(filtered_videos):
         final_deliverables = []
         for title in generated_titles:
             prompt = (
-                "Generate a YouTube video description based on the following title and context.\n\n"
+                "You are a YouTube growth copywriter. Write an optimized description (120‑200 words) that:\n"
+                "- Opens with a 2‑line compelling hook that echoes the title\n"
+                "- Summarizes the video value in 3‑5 concise bullets\n"
+                "- Ends with a call‑to‑action to watch/subscribe\n"
+                "- Seamlessly includes the main keywords from the context\n\n"
                 f"Title:\n{title}\n\n"
-                f"Video Context:\n{video_context}\n\n"
-                "Make it concise and engaging. Return only the description as plain text."
+                f"Context:\n{video_context}\n\n"
+                "Return only the plain‑text description."
             )
 
             desc_response = client.chat.completions.create(
