@@ -136,6 +136,12 @@ def thumbnails_analysis(filtered_videos):
         except Exception as e:
             logging.error("Error processing thumbnail %s: %s", image_url, e)
 
+        logging.info("")
+        logging.info("")
+        logging.info(f"Thumbnail descriptions:\n{json.dumps(descriptions, indent=4, ensure_ascii=False)}")
+        logging.info("")
+        logging.info("")
+
     try:
         prompt = (
             f"Analyze the following 10 thumbnail descriptions. Group them into exactly {thumbnail_packages} distinct visual patterns based on elements like colors, objects, number of people, layout, mood, etc.\n"
