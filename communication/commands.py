@@ -49,22 +49,22 @@ def handle_request(ack, body, client):
                     "placeholder": {"type": "plain_text", "text": "Not necessary, but always welcomed"}
                 },
             },
-            {
-                "type": "input",
-                "block_id": "thumbnail_packages",
-                "label": {"type": "plain_text", "text": "Number of packages needed"},
-                "element": {
-                    "type": "static_select",
-                    "action_id": "select",
-                    "placeholder": {"type": "plain_text", "text": "Select an option"},
-                    "options": [
-                        {"text": {"type": "plain_text", "text": "1 package"}, "value": "1"},
-                        {"text": {"type": "plain_text", "text": "2 packages"}, "value": "2"},
-                        {"text": {"type": "plain_text", "text": "3 packages"}, "value": "3"},
-                        {"text": {"type": "plain_text", "text": "4 packages"}, "value": "4"}
-                    ]
-                }
-            }
+            # {
+            #     "type": "input",
+            #     "block_id": "thumbnail_packages",
+            #     "label": {"type": "plain_text", "text": "Number of packages needed"},
+            #     "element": {
+            #         "type": "static_select",
+            #         "action_id": "select",
+            #         "placeholder": {"type": "plain_text", "text": "Select an option"},
+            #         "options": [
+            #             {"text": {"type": "plain_text", "text": "1 package"}, "value": "1"},
+            #             {"text": {"type": "plain_text", "text": "2 packages"}, "value": "2"},
+            #             {"text": {"type": "plain_text", "text": "3 packages"}, "value": "3"},
+            #             {"text": {"type": "plain_text", "text": "4 packages"}, "value": "4"}
+            #         ]
+            #     }
+            # }
         ],
         "submit": {"type": "plain_text", "text": "Submit"}
     }
@@ -117,10 +117,14 @@ def handle_modal_submission(ack, body, client):
     else:
         additional_info = "No additional information"
 
-    thumbnail_packages = state_values["thumbnail_packages"]["select"]["selected_option"]["value"]
+    # thumbnail_packages = state_values["thumbnail_packages"]["select"]["selected_option"]["value"]
+    thumbnail_packages = 3
 
-    package_credits_map = {"1": 1, "2": 2, "3": 3, "4": 4}
-    required_credits = package_credits_map.get(thumbnail_packages, 1)
+
+    # package_credits_map = {"1": 1, "2": 2, "3": 3, "4": 4}
+    # required_credits = package_credits_map.get(thumbnail_packages, 1)
+    required_credits = 3
+
 
     client_info = fetch_client_data(channel_id)
     if not client_info:

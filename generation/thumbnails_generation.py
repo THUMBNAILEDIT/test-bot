@@ -50,7 +50,7 @@ def thumbnail_generation(thumbnails_instructions):
                 "prompt_upsampling": True,
                 "width": 1280,
                 "height": 720,
-                "output_quality": 80,
+                "output_quality": 100,
                 "output_format": "jpg",
                 "aspect_ratio": "custom",
                 "safety_tolerance": 4
